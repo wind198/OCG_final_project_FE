@@ -1,30 +1,45 @@
 <template>
-  <div id="nav">
-    <router-link to="/">Home</router-link> |
-    <router-link to="/about">About</router-link>
-  </div>
-  <router-view/>
+  <HeaderComp />
+  <router-view />
+  <FooterComp />
 </template>
 
+<script>
+import HeaderComp from "./components/HeaderComp";
+import FooterComp from "./components/FooterComp";
+
+export default {
+  components: {
+    HeaderComp,
+    
+    FooterComp,
+  },
+};
+</script>
+
 <style lang="scss">
-#app {
-  font-family: Avenir, Helvetica, Arial, sans-serif;
-  -webkit-font-smoothing: antialiased;
-  -moz-osx-font-smoothing: grayscale;
-  text-align: center;
-  color: #2c3e50;
+html{
+    font-size: 16px;
+    font-family: "Open Sans", sans-serif;
 }
-
-#nav {
-  padding: 30px;
-
-  a {
-    font-weight: bold;
-    color: #2c3e50;
-
-    &.router-link-exact-active {
-      color: #42b983;
+body{
+    padding: 0;
+    background-color: $color2;
+    color: $color1;
+}
+*{
+    box-sizing: border-box;
+}
+ul{
+    list-style-type: none;
+    padding-left: 0;
+}
+  a{
+        text-decoration: none;
+        color: $color1;
     }
-  }
-}
+ 
+
 </style>
+
+ 
