@@ -121,7 +121,6 @@ export default {
       arr=arr.filter((e)=>e.nodeName!=="#text");
       return arr;
     });
-    console.log(optionArray);
     const dinstanceIncrement = computed(() => {
       return document.getElementById("collectionsBrowse").offsetWidth;
     });

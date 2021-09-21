@@ -159,50 +159,33 @@
           </a>
         </li>
       </ul>
-      <div class="wipe-handler">
-        <div class="handler-container" id="left" @click.stop="handlerSlide">
-          <div class="handler" id="go-left"></div>
-        </div>
-        <div class="handler-container" id="right" @click.stop="handlerSlide">
-          <div class="handler" id="go-right"></div>
-        </div>
-      </div>
+      <wiper-slider-comp @click="handleSlide" />
     </div>
   </section>
 </template>
 
 <script>
 import { ref } from "vue";
-import { wiperSlider } from "../common/helper";
+import { wipeFunction } from "../common/helper";
+import WiperSliderComp from "./WiperSliderComp.vue";
 
 export default {
+  components: {
+    WiperSliderComp,
+  },
   setup() {
-    const sliderLeftPosition = ref(0);
-    const handlerSlide = (e) => {
+    const sliderLeftPosition = ref("0px");
+    const handleSlide = (e) => {
       const target = e.target;
       const direction = target.id;
       const slideIncrement =
         target.parentNode.previousSibling.firstChild.offsetWidth;
-      console.log(direction, slideIncrement);
-
-      switch (direction) {
-        case "left": {
-          if (parseFloat(sliderLeftPosition.value) < slideIncrement*5) {
-            wiperSlider(sliderLeftPosition, slideIncrement);
-          }
-          break;
-        }
-        case "right": {
-          if (parseFloat(sliderLeftPosition.value) > -slideIncrement*5) {
-            wiperSlider(sliderLeftPosition, -slideIncrement);
-          }
-        }
-      }
+        wipeFunction(sliderLeftPosition,direction,slideIncrement,5,5);
     };
 
     return {
       sliderLeftPosition,
-      handlerSlide,
+      handleSlide,
     };
   },
 };
@@ -225,7 +208,7 @@ section {
     border-bottom: 1px solid rgba(75, 75, 75, 0.5);
     h1 {
       font-size: 1.5rem;
-     font-family: 'Playfair Display', serif;
+      font-family: "Playfair Display", serif;
       text-transform: uppercase;
     }
     span {
@@ -241,10 +224,10 @@ section {
         display: inline-block;
       }
     }
-      a:hover{
-        text-decoration: none;
-        color: $color1;
-      }
+    a:hover {
+      text-decoration: none;
+      color: $color1;
+    }
     margin-bottom: 20px;
   }
   .slides-container {
@@ -275,7 +258,7 @@ section {
           position: relative;
           img {
             height: auto;
-            width: calc(29vw - 10px) ;
+            width: calc(29vw - 10px);
           }
           p {
             position: absolute;
@@ -288,51 +271,12 @@ section {
             text-transform: uppercase;
             font-size: 1.2rem;
             margin-bottom: 0;
-            &:hover{
-            background-color: rgba(0, 0, 0, 0.6);
-            font-weight: 600;
+            &:hover {
+              background-color: rgba(0, 0, 0, 0.6);
+              font-weight: 600;
             }
           }
         }
-      }
-    }
-    .wipe-handler {
-      pointer-events: none;
-      position: absolute;
-      width: 100%;
-      height: 100%;
-      left: 50%;
-      top: 50%;
-      transform: translate(-50%, -50%);
-      display: flex;
-      justify-content: space-between;
-      .handler-container {
-        pointer-events: fill;
-        height: 100%;
-        width: calc((100% - 29vw * 3 - 10px) / 2);
-        background-color: rgba(0, 0, 0, 0.6);
-        display: flex;
-        position: relative;
-      }
-      div.handler {
-        --handler-side: calc(100vw * 0.04);
-        width: var(--handler-side);
-        height: var(--handler-side);
-        border-top: 3px solid white;
-        border-left: 3px solid white;
-        position: absolute;
-        pointer-events: none;
-      }
-      div.handler#go-left {
-        transform: translate(-15%, -50%) rotate(-45deg);
-        top: 50%;
-        left: 50%;
-      }
-      div.handler#go-right {
-        top: 50%;
-        left: 0%;
-        transform: translate(-10%, -50%) rotate(135deg);
-        /* margin: auto 45% auto auto; */
       }
     }
   }

@@ -38,23 +38,26 @@
           />
         </li>
       </ul>
-    </div>
+      <wiper-slider-comp @click="handleWipe" :containerColor="'rgba(0,0,0,0)'" :handlerColor="'rgba(97,97,97,0.5)'"/>
     <option-selector-comp
       @click="handleSlide"
       :size="'size-2'"
       :amount="7"
       id="customerExperience"
     />
+    </div>
+    
   </section>
 </template>
 
 <script>
 import OptionSelectorComp from "./OptionSelectorComp.vue";
-import { optionSlider, reAssignActive } from "../common/helper";
-import { computed, ref, watch,onMounted } from "vue";
+import { optionSlider, reAssignActive ,wipeFunction} from "../common/helper";
+import { computed, ref, watch, onMounted } from "vue";
+import WiperSliderComp from "./WiperSliderComp.vue";
 
 export default {
-  components: { OptionSelectorComp },
+  components: { OptionSelectorComp, WiperSliderComp },
   setup() {
     const sliderLeftPosition = ref("0px");
     const optionArray = computed(() => {
@@ -79,12 +82,21 @@ export default {
         distanceIncrement.value
       );
     };
-     onMounted(()=>{
+    const handleWipe = (e) => {
+      const target = e.target;
+      const direction = target.id;
+      const slideIncrement =
+        target.parentNode.previousSibling.firstChild.offsetWidth;
+      wipeFunction(sliderLeftPosition, direction, slideIncrement,0 ,6);
+    };
+
+    onMounted(() => {
       optionArray.value[0].classList.add("active");
-    })
+    });
 
     return {
       handleSlide,
+      handleWipe,
       sliderLeftPosition,
     };
   },
@@ -97,6 +109,7 @@ section {
   .comment-container {
     width: 100%;
     overflow: hidden;
+    position: relative;
 
     ul {
       width: 100%;

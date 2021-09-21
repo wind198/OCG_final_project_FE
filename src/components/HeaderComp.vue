@@ -17,11 +17,11 @@
         </p>
       </div>
       <div class="logo">
-        <a href="#"
+        <router-link :to="{name:'home',}"
           ><img
             src="https://cdn.shopify.com/s/files/1/1089/1214/t/190/assets/IO_logo-RGB.svg?v=9399816925637489965"
             alt="Interior Online"
-        /></a>
+        /></router-link>
       </div>
       <div class="toolbar">
         <div class="search">
@@ -56,12 +56,20 @@
     </div>
     <nav>
       <ul id="nav-main">
-        <li class="nav-main-item" v-for="page in pageList" :key="page.id">
-          <a href="#" @mouseenter="mouseEnterShowSubList" @mouseleave="mouseLeaveHideSubList"
-            >{{ generatePageAlias(page.name) }}
-            <nav-sub-menu-comp :collectionList="page.collections" />
-          </a>
+        <li class="nav-main-item" v-for="page in pageList" :key="page.ID">
+          <router-link
+            :to="{name:'page',params:{pageID:page.ID}}"
+            @mouseenter="mouseEnterShowSubList"
+            @mouseleave="mouseLeaveHideSubList"
+            >{{ generatePageAlias(page.page_name) }}
+            <nav-sub-menu-comp :collectionList="page.Collections" />
+          </router-link>
         </li>
+        <li class="nav-main-item"><a href="#">decor style</a></li>
+        <li class="nav-main-item"><a href="#">inspiration</a></li>
+        <li class="nav-main-item"><a href="#">trade/decoration</a></li>
+        <li class="nav-main-item"><a href="#">brands</a></li>
+        <li id="sale" class="nav-main-item"><a href="#">sale</a></li>
       </ul>
     </nav>
   </header>
@@ -70,81 +78,24 @@
 <script>
 import { computed } from "@vue/reactivity";
 import NavSubMenuComp from "./NavSubMenuComp.vue";
+import {generatePageAlias} from "../common/helper"
+import { useStore } from "vuex";
+import { FETCH_ALL_PAGE } from "../store/actions.type";
 export default {
   components: { NavSubMenuComp },
   name: "HeaderComp",
   setup() {
-    const pageList = computed(() => {
-      return [
-        {
-          id: 1,
-          name: "furniture",
-          collections: [
-            { id: 1, name: "chairs-and-seating" },
-            { id: 2, name: "table" },
-            { id: 3, name: "storage" },
-            { id: 4, name: "micellaneous" },
-            { id: 5, name: "bedroom-funiture" },
-          ],
-        },
-        {
-          id: 2,
-          name: "home-decor",
-          collections: [
-            { id: 6, name: "artificial-flowers-and-trees" },
-            { id: 7, name: "wall-clocks" },
-            { id: 8, name: "cushions-throws-and-quilts" },
-            { id: 9, name: "decorator-pieces" },
-            { id: 10, name: "designer-doormats" },
-            { id: 11, name: "room-dividers" },
-            { id: 12, name: "water-features" },
-            { id: 13, name: "designer-rugs" },
-            { id: 14, name: "decorative-mirrors" },
-            { id: 15, name: "lighting" },
-            { id: 16, name: "outdoor-accessories" },
-            { id: 17, name: "round-mirrors" },
-            { id: 18, name: "paintings" },
-            { id: 19, name: "benches" },
-          ],
-        },
-        {
-          id: 3,
-          name: "lighting",
-          collections: [
-            { id: 20, name: "table-lamps" },
-            { id: 21, name: "hurricane-lamps-and-candelabras" },
-            { id: 22, name: "ceiling-lights" },
-            { id: 23, name: "chandeliers" },
-            { id: 24, name: "floor-lamps" },
-            { id: 25, name: "wall-lights" },
-          ],
-        },
-        {
-          id: 4,
-          name: "outdoor-garden",
-          collections: [
-            { id: 21, name: "outdoor-accessories" },
-            { id: 22, name: "outdoor-seating" },
-            { id: 23, name: "outdoor-tables" },
-          ],
-        },
-        { id: 5, name: "inspiration" },
-        { id: 6, name: "trade/decoration" },
-        { id: 7, name: "brands" },
-        { id: 6, name: "sale" },
-      ];
-    });
+    const store = useStore();
 
-    const generatePageAlias = (name) => {
-      if (name == "home-decor") {
-        return "decor";
-      } else if (name == "outdoor-garden") {
-        return "outdoor & garden";
-      } else return name.replaceAll("-", " ");
-    };
+    const fetchNavBar = () => store.dispatch(`home/${FETCH_ALL_PAGE}`);
+
+    fetchNavBar();
+
+    const pageList = computed(() => store.state.home.pages);
+
+   
 
     const mouseEnterShowSubList = (event) => {
-      console.log("hello");
       const currentNode = event.target;
       currentNode.childNodes[1].classList.remove("hiding");
     };
@@ -154,7 +105,12 @@ export default {
       currentNode.childNodes[1].classList.add("hiding");
     };
 
-    return { pageList, generatePageAlias, mouseEnterShowSubList,mouseLeaveHideSubList };
+    return {
+      pageList,
+      generatePageAlias,
+      mouseEnterShowSubList,
+      mouseLeaveHideSubList,
+    };
   },
 };
 </script>
@@ -162,8 +118,8 @@ export default {
 <style lang="scss" scoped>
 header {
   background-color: $color3;
-position: relative;
-z-index: 1000;
+  position: relative;
+  z-index: 1000;
   .event-annoucement {
     background-color: black;
     a {
@@ -233,16 +189,25 @@ z-index: 1000;
   }
   nav {
     background-color: $color3;
+    border-bottom: 1px solid $color2;
     height: 60px;
     padding: 0 5%;
     ul#nav-main {
       height: 100%;
       display: flex;
       justify-content: space-between;
+      li#sale {
+        a {
+          color: #ff556a;
+          &:hover{
+            color: #f8344b;
 
+          }
+        }
+      }
       li.nav-main-item {
         text-transform: uppercase;
-        font-size: 1rem;
+        font-size: 0.9rem;
         font-weight: 500;
         position: relative;
 
