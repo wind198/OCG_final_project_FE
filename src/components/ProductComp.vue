@@ -1,12 +1,8 @@
 <template>
   <div class="product-info">
-    <img
-      class="product-image"
-      src="https://cdn.shopify.com/s/files/1/1089/1214/products/shopify_c11a5d759f6f6b06534ff8ccd68c7383_elliot-oak-dining-table-black-300cm_x480.jpg?v=1632111314"
-      alt=""
-    />
+    <img class="product-image" :src="image" alt="" />
     <div class="info">
-      <p class="name">SAG HARBOUR INDOOR/OUTDOOR 2 SEAT LOUNGE</p>
+      <p class="name"><router-link :to="{name:'product',params:{productID:id}}">{{ name }}</router-link></p>
       <p class="price">Our price 55$</p>
       <div class="action">
         <div class="image-holder">
@@ -28,40 +24,43 @@
 </template>
 
 <script>
-import { useStore } from "vuex";
-import { useRoute } from "vue-router";
-import { FETCH_SINGLE_PRODUCT } from "../store/actions.type";
-
 export default {
-  setup() {
-    const store = useStore();
-    const route = useRoute();
-    const productID = route.params.productID;
-    const fetchProductInfo =()=>store.dispatch(FETCH_SINGLE_PRODUCT, {
-      id: productID,
-    });
-    fetchProductInfo();
+  props: {
+    id: Number,
+    name: String,
+    description: String,
+    variances: Array,
+    image: String,
   },
+  
 };
 </script>
 
 <style lang="scss" scoped>
 .product-info {
+  padding: 10px 25px;
+  border-radius: 20px;
+  background-color: #fff;
   width: 100%;
   img.product-image {
-    width: 100%;
-    height: auto;
+    max-width: 100%;
+    max-height: 200px;
+    display: block;
+    margin: auto;
   }
   .info {
+    --font-size: 0.9rem;
+    background-color: $color2;
     .name {
       font-family: "Playfair Display", serif;
-      font-size: 1.1rem;
+      font-size: calc(var(--font-size));
       text-transform: uppercase;
     }
     .price {
       font-weight: 500;
       text-transform: uppercase;
       letter-spacing: 0.08rem;
+      font-size: calc(var(--font-size) * 0.9);
     }
     .action {
       display: flex;

@@ -6,7 +6,7 @@
     />
     <span class="collection-name"
       ><router-link
-        :to="{ name: 'collection', params: { collectionID: collection.ID } }"
+        :to="{path:`/collection/${collection.ID}`}"
         >{{ generatePageAlias(collection.collection_name) }}</router-link
       ></span
     >

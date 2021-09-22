@@ -17,7 +17,7 @@
         </p>
       </div>
       <div class="logo">
-        <router-link :to="{name:'home',}"
+        <router-link :to="{ name: 'home' }"
           ><img
             src="https://cdn.shopify.com/s/files/1/1089/1214/t/190/assets/IO_logo-RGB.svg?v=9399816925637489965"
             alt="Interior Online"
@@ -58,7 +58,7 @@
       <ul id="nav-main">
         <li class="nav-main-item" v-for="page in pageList" :key="page.ID">
           <router-link
-            :to="{name:'page',params:{pageID:page.ID}}"
+            :to="{ name: 'page', params: { pageID: page.ID } }"
             @mouseenter="mouseEnterShowSubList"
             @mouseleave="mouseLeaveHideSubList"
             >{{ generatePageAlias(page.page_name) }}
@@ -76,25 +76,16 @@
 </template>
 
 <script>
-import { computed } from "@vue/reactivity";
 import NavSubMenuComp from "./NavSubMenuComp.vue";
-import {generatePageAlias} from "../common/helper"
-import { useStore } from "vuex";
-import { FETCH_ALL_PAGE } from "../store/actions.type";
+import { generatePageAlias } from "../common/helper";
+
 export default {
   components: { NavSubMenuComp },
   name: "HeaderComp",
+  props: {
+    pageList: Array,
+  },
   setup() {
-    const store = useStore();
-
-    const fetchNavBar = () => store.dispatch(`home/${FETCH_ALL_PAGE}`);
-
-    fetchNavBar();
-
-    const pageList = computed(() => store.state.home.pages);
-
-   
-
     const mouseEnterShowSubList = (event) => {
       const currentNode = event.target;
       currentNode.childNodes[1].classList.remove("hiding");
@@ -104,13 +95,7 @@ export default {
       const currentNode = event.target;
       currentNode.childNodes[1].classList.add("hiding");
     };
-
-    return {
-      pageList,
-      generatePageAlias,
-      mouseEnterShowSubList,
-      mouseLeaveHideSubList,
-    };
+    return { generatePageAlias, mouseEnterShowSubList, mouseLeaveHideSubList };
   },
 };
 </script>
@@ -199,9 +184,8 @@ header {
       li#sale {
         a {
           color: #ff556a;
-          &:hover{
+          &:hover {
             color: #f8344b;
-
           }
         }
       }

@@ -1,18 +1,13 @@
 import { createStore } from 'vuex'
-import product from "./modules/product.module"
-import home from "./modules/home.module"
-import collection from "./modules/collection.module"
-import createPersistedState from "vuex-persistedstate";
+import productModule from "./modules/productModule"
+import homeModule from "./modules/homeModule"
+import collectionModule from "./modules/collectionModule"
+// import createPersistedState from "vuex-persistedstate";
 
 export default createStore({
-  state: {
-  },
-  mutations: {
-  },
-  actions: {
-  },
+
   modules: {
-    product,home,collection
+    productModule, homeModule, collectionModule
   },
-  plugins: [createPersistedState()],
+  // plugins: [createPersistedState()],
 })

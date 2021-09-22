@@ -2,9 +2,16 @@ import { FETCH_SINGLE_PRODUCT } from "../actions.type";
 import { SET_ERRORS, SET_PRODUCT_PROPS, SET_QUANTITY_SELECTED } from "../mutations.type"
 import apiServices from "../../common/api.services"
 const state = {
-    product: null,
+    ID: null,
+    name: "",
+    description: "",
+    image: "",
+    ProductVariances: [],
+
+    categoryName: "",
     errors: null,
-    quantitySelected: 0
+    quantitySelected: 0,
+
 }
 
 const getters = {
@@ -33,7 +40,15 @@ const actions = {
 
 const mutations = {
     [SET_PRODUCT_PROPS](state, product) {
-        state.product = product;
+
+        for (const key in product) {
+            if (Object.hasOwnProperty.call(state, key)) {
+                state[key] = product[key];
+            }
+        }
+        state.image = product.Images[0].image;
+        state.categoryName = product.Categories[0].category_name;
+
     },
     [SET_QUANTITY_SELECTED](state, quantitySelected) {
         state.quantitySelected = quantitySelected;

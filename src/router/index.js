@@ -19,7 +19,6 @@ const routes = [
     , children: [
       {
         path: '',
-        name: 'allCategory',
         component: () => import('../views/Category.vue')
       },
       {

@@ -18,7 +18,7 @@ import { FETCH_SINGLE_PAGE } from "../store/actions.type";
 import { useStore } from "vuex";
 import { useRoute } from "vue-router";
 import { computed } from "@vue/reactivity";
-import { watch } from "@vue/runtime-core";
+import { onMounted, watch } from "@vue/runtime-core";
 export default {
   components: { CollectionComp, HeadingComp },
   setup() {
@@ -26,24 +26,25 @@ export default {
     let route = useRoute();
     let id = computed(() => route.params.pageID);
 
+    const fetchPage = (id) =>
+      store.dispatch(`homeModule/${FETCH_SINGLE_PAGE}`, { id });
+
+    onMounted(fetchPage(id.value));
     watch(id, (value) => {
       fetchPage(value);
     });
-    const fetchPage = (id) =>
-      store.dispatch(`home/${FETCH_SINGLE_PAGE}`, { id });
-    fetchPage(id);
 
     const mainPage = computed(() => {
-      const pages = store.state.home.pages;
-      const mainPageIndex = store.state.home.mainPageID;
+      const pages = store.state.homeModule.pages;
+      const mainPageIndex = store.state.homeModule.mainPageID;
       const mainPage = pages.filter((e) => e.ID == mainPageIndex)[0];
       return mainPage;
     });
     const collectionList = computed(() => {
       return mainPage.value.Collections;
     });
-    const pageName =computed(()=>mainPage.value.page_name)
-    return { collectionList,pageName };
+    const pageName = computed(() => mainPage.value.page_name);
+    return { collectionList, pageName };
   },
 };
 </script>

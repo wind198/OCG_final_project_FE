@@ -1,6 +1,6 @@
 <template>
   <main>
-    <heading-comp :text="'a'" />
+    <heading-comp :text="collectionName" />
     <router-view />
     <div class="pages">
       <page-button-comp :value="1" />
@@ -15,20 +15,78 @@
 import HeadingComp from "../components/HeadingComp.vue";
 import { useStore } from "vuex";
 import { useRoute } from "vue-router";
-import {computed} from "vue";
-import {SET_COLLECTION_CATEGORIES} from "../store/mutations.type";
+// import { useRouter } from "vue-router";
+import { computed, onMounted, watch } from "vue";
+import {
+  FETCH_SINGLE_COLLECTION,
+  FETCH_SINGLE_CATEGORY,
+} from "../store/actions.type";
+import { CLEAR_PRODUCTS } from "../store/mutations.type";
 export default {
   components: {
     HeadingComp,
   },
   setup() {
     const store = useStore();
-    let route = useRoute();
-    let id = computed(() => route.params.collectionID);
-    console.log("id",id);
-    store.commit(`collection/${SET_COLLECTION_CATEGORIES}`, "HAHAHA");
+    const route = useRoute();
 
-    return {};
+    const fetchCollection = (id) =>
+      store.dispatch(`collectionModule/${FETCH_SINGLE_COLLECTION}`, { id });
+
+    const fetchSingleCategory = (id) => {
+      store.dispatch(`collectionModule/${FETCH_SINGLE_CATEGORY}`, { id: id });
+    };
+
+    const fetchAllCategories = (allCategoryArray) => {
+      allCategoryArray.forEach((category) => {
+        fetchSingleCategory(category.ID);
+      });
+    };
+    const watchCollectionAndCategories = (newRoute, oldRoute) => {
+      if (newRoute.params.collectionID !== oldRoute.params.collectionID) {
+        fetchCollection(newRoute.params.collectionID).then(() => {
+          if (typeof newRoute.params.categoryID === "undefined") {
+            const allCategory = store.state.collectionModule.Categories;
+            fetchAllCategories(allCategory);
+          } else {
+            store.commit(`collectionModule/${CLEAR_PRODUCTS}`);
+            fetchSingleCategory(newRoute.params.categoryID);
+          }
+        });
+      } else {
+        if (typeof newRoute.params.categoryID === "undefined") {
+          const allCategory = store.state.collectionModule.Categories;
+          fetchAllCategories(allCategory);
+        } else {
+          store.commit(`collectionModule/${CLEAR_PRODUCTS}`);
+          fetchSingleCategory(newRoute.params.categoryID);
+        }
+      }
+    };
+
+    watch(
+      route,
+      (newRoute, oldRoute) => {
+        watchCollectionAndCategories(newRoute, oldRoute);
+      },
+      { immediate: false, deep: true }
+    );
+    onMounted(() => {
+      fetchCollection(route.params.collectionID).then(() => {
+        console.log(route);
+        if (typeof route.params.categoryID === "undefined") {
+          const allCategory = store.state.collectionModule.Categories;
+          fetchAllCategories(allCategory);
+        } else {
+          store.commit(`collectionModule/${CLEAR_PRODUCTS}`);
+          fetchSingleCategory(route.params.categoryID);
+        }
+      });
+    });
+    const collectionName = computed(
+      () => store.state.collectionModule.collection_name
+    );
+    return { collectionName };
   },
 };
 </script>

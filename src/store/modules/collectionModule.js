@@ -1,10 +1,17 @@
 import { FETCH_SINGLE_CATEGORY, FETCH_SINGLE_COLLECTION } from "../actions.type";
-import {  SET_ERRORS,SET_COLLECTION_CATEGORIES,SET_CATEGORY_PRODUCTS } from "../mutations.type"
+import {CLEAR_PRODUCTS, SET_ERRORS, SET_COLLECTION_CATEGORIES, SET_CATEGORY_PRODUCTS } from "../mutations.type"
 import ApiServices from "../../common/api.services"
 import { productPerPage } from "../../common/contanst";
 const state = {
-    collection: "hello",
-    errors: null
+    ID: 2,
+    CreatedAt: "",
+    UpdatedAt: "",
+    DeletedAt: "",
+    image: "//cdn.shopify.com/s/files/1/1089/1214/collections/hurricane_large.jpg?v=1592876146",
+    collection_name: "",
+    page_id: null,
+    Categories: [],
+    errors: {}
 }
 
 const getters = {
@@ -21,6 +28,7 @@ const getters = {
 const actions = {
     async [FETCH_SINGLE_COLLECTION]({ commit }, payload) {
         try {
+            console.log("fetching cllection");
             const data = await ApiServices.query(`/collections/${payload.id}/categories`);
             commit(SET_COLLECTION_CATEGORIES, data.data);
         }
@@ -31,7 +39,8 @@ const actions = {
     },
     async  [FETCH_SINGLE_CATEGORY]({ commit }, payload) {
         try {
-            const data = await ApiServices.query(`/products/${productPerPage}/categories/${payload.id}`)
+            console.log("payload", payload.id);
+            const data = await ApiServices.query(`/products/${productPerPage}/0/categories/${payload.id}`)
             commit(SET_CATEGORY_PRODUCTS, { categoryID: payload.id, products: data.data });
         }
         catch (err) {
@@ -44,13 +53,16 @@ const actions = {
 const mutations = {
 
     [SET_COLLECTION_CATEGORIES](state, collection) {
-        console.log("collection",collection);
-       state.collection="abasdf";
-       console.log(state.collection);
+        console.log(collection);
+        for (const key in collection) {
+            if (Object.hasOwnProperty.call(state, key)) {
+                state[key] = collection[key];
+            }
+        }
     }
     ,
     [SET_CATEGORY_PRODUCTS](state, payload) {
-        state.collection.Categories = state.collection.Categories.map((category) => {
+        state.Categories = state.Categories.map((category) => {
             if (category.ID == payload.categoryID) {
                 return { ...category, Products: payload.products }
 
@@ -58,7 +70,12 @@ const mutations = {
         }
         )
     },
-
+    [CLEAR_PRODUCTS](state) {
+        state.Categories.forEach(category => {
+            category.Products = [];
+        });
+    }
+    ,
     [SET_ERRORS](state, errors) {
         state.errors = errors;
     }
