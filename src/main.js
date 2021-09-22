@@ -7,4 +7,7 @@ import VueAxios from 'vue-axios';
 app.use(VueAxios, axios);
 app.use(store).use(router).mount('#app');
 
+router.beforeEach((to, from) => {
+    console.log("beforeeach",to,from);
+  })
 export default app;

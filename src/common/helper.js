@@ -62,3 +62,9 @@ export const getMinPrice = (variances) => {
   });
   return minPrice;
 };
+
+export const checkIfEmptyObject = (obj) => {
+  if (Object.keys(obj).length == 0) {
+    return true;
+  } else { return false }
+}

@@ -45,12 +45,15 @@
               alt=""
           /></a>
         </div>
-        <div class="cart">
-          <a href="#"
+        <div class="cart">  
+          <router-link :to="{path:`/cart`}"
             ><img
               src="https://cdn.shopify.com/s/files/1/1089/1214/t/190/assets/shopping-cart-icon.svg?v=3445795434587133615"
               alt=""
-          /></a>
+          /></router-link>
+          <div :class="showAnimation ? 'show-animation' : 'hide-animation'">
+            <i class="fas fa-plus"></i>
+          </div>
         </div>
       </div>
     </div>
@@ -78,6 +81,8 @@
 <script>
 import NavSubMenuComp from "./NavSubMenuComp.vue";
 import { generatePageAlias } from "../common/helper";
+import { computed } from "@vue/reactivity";
+import { useStore } from "vuex";
 
 export default {
   components: { NavSubMenuComp },
@@ -86,16 +91,22 @@ export default {
     pageList: Array,
   },
   setup() {
+    const store = useStore();
     const mouseEnterShowSubList = (event) => {
       const currentNode = event.target;
       currentNode.childNodes[1].classList.remove("hiding");
     };
     const mouseLeaveHideSubList = (event) => {
-      console.log("hello");
       const currentNode = event.target;
       currentNode.childNodes[1].classList.add("hiding");
     };
-    return { generatePageAlias, mouseEnterShowSubList, mouseLeaveHideSubList };
+    const showAnimation = computed(() => store.state.homeModule.showAnimation);
+    return {
+      generatePageAlias,
+      mouseEnterShowSubList,
+      mouseLeaveHideSubList,
+      showAnimation,
+    };
   },
 };
 </script>
@@ -104,7 +115,7 @@ export default {
 header {
   background-color: $color3;
   position: relative;
-  z-index: 1000;
+  // z-index: 0;
   .event-annoucement {
     background-color: black;
     a {
@@ -116,7 +127,7 @@ header {
     }
   }
   .logo-toolbar {
-    padding: 0 5%;
+    padding: 0 6%;
     display: flex;
     justify-content: space-between;
     height: 60px;
@@ -124,7 +135,7 @@ header {
     .customer-care {
       p {
         margin: 0;
-        padding: 15px 0 20px;
+        padding: 15px 10px 20px;
         font-weight: 500;
         text-transform: uppercase;
         width: 100%;
@@ -159,6 +170,7 @@ header {
     .toolbar {
       > div {
         display: inline-block;
+        position: relative;
         margin-right: 1rem;
         height: 100%;
         a {
@@ -169,6 +181,33 @@ header {
             width: auto;
           }
         }
+
+        .hide-animation {
+          display: none;
+        }
+        .show-animation {
+          position: absolute;
+          display: block;
+          top: 35%;
+          left: 34%;
+          animation: add_to_cart_animation 0.9s infinite;
+          z-index: 1100;
+          i {
+            color: $color2;
+            display: block;
+          }
+          @keyframes add_to_cart_animation {
+            0% {
+              transform: scale(0.01);
+            }
+            50% {
+              transform: scale(2);
+            }
+            100% {
+              transform: scale(0.01);
+            }
+          }
+        }
       }
     }
   }
@@ -176,11 +215,11 @@ header {
     background-color: $color3;
     border-bottom: 1px solid $color2;
     height: 60px;
-    padding: 0 5%;
+    padding: 0 1%;
     ul#nav-main {
       height: 100%;
       display: flex;
-      justify-content: space-between;
+      justify-content: center;
       li#sale {
         a {
           color: #ff556a;
@@ -201,7 +240,7 @@ header {
           display: inline-block;
           width: max-content;
           height: 100%;
-          padding: 20px 15px;
+          padding: 20px 12px;
           transition: color 0.5s ease-in;
           &:hover {
             background: $color2;

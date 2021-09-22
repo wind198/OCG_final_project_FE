@@ -1,7 +1,7 @@
 <template>
   <div class="product-info">
     <div class="image-container">
-      <img class="product-image" :src="image" alt="" />
+      <router-link :to="{ name: 'product', params: { productID: id } }"><img class="product-image" :src="image" alt="" /></router-link>
     </div>
     <div class="info">
       <p class="name">
@@ -63,10 +63,11 @@ export default {
   width: 100%;
   .image-container {
     background-color: #fff;
+    height: 150px;
 
     img.product-image {
       max-width: 100%;
-      max-height: 200px;
+      max-height: 100%;
       display: block;
       margin: auto;
     }

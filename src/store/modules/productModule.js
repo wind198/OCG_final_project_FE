@@ -10,7 +10,7 @@ const state = {
 
     categoryName: "",
     errors: null,
-    quantitySelected: 0,
+    quantitySelected: 1,
 
 }
 

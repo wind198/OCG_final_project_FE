@@ -118,11 +118,11 @@ export default {
 }
 
 .product-container {
-  margin: 0 4%;
+  margin: 0 3%;
   height: max-content;
   display: grid;
   grid-auto-flow: row;
-  grid-template-columns: 22.5% 22.5% 22.5% 22.5%;
+  grid-template-columns: 23% 23% 23% 23%;
   row-gap: 20px;
   justify-content: space-between;
   margin-bottom: 110px;

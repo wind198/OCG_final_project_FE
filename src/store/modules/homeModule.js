@@ -1,11 +1,12 @@
 import { FETCH_ALL_PAGE, FETCH_SINGLE_PAGE } from "../actions.type";
-import { SET_PAGE,SET_MAIN_PAGE, SET_ERRORS } from "../mutations.type"
+import { SET_PAGE,SET_MAIN_PAGE, SET_ERRORS,TOGGLE_ANIMATION } from "../mutations.type"
 import ApiServices from "../../common/api.services"
 const state = {
     pages: null,
     mainPageID: "",
     collections: null,
-    errors: null
+    errors: null,
+    showAnimation:false
 
 }
 
@@ -46,6 +47,9 @@ const mutations = {
     [SET_ERRORS](state, errors) {
         state.errors = errors;
     },
+    [TOGGLE_ANIMATION](state){
+        state.showAnimation=!state.showAnimation;
+    }
 
 }
 export default {

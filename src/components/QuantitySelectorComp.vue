@@ -15,7 +15,7 @@
 </template>
 
 <script>
-import {  ref } from "@vue/reactivity";
+import { ref } from "@vue/reactivity";
 import { useStore } from "vuex";
 import { watch } from "@vue/runtime-core";
 import { SET_QUANTITY_SELECTED } from "../store/mutations.type";
@@ -27,14 +27,16 @@ export default {
       quantity.value++;
     };
     const onDec = () => {
+      if (quantity.value == 1) {
+        return;
+      }
       quantity.value--;
     };
 
     watch(quantity, (value) => {
-      store.commit(`productModule/${SET_QUANTITY_SELECTED}`,value);
+      store.commit(`productModule/${SET_QUANTITY_SELECTED}`, value);
     });
-  return{quantity,onInc,onDec};
-  
+    return { quantity, onInc, onDec };
   },
 };
 </script>

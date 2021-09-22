@@ -1,7 +1,7 @@
 <template>
   <ul class="hiding">
     <li v-for="collection in collectionList" :key="collection.id">
-      <router-link :to="{name:'collection',params:{collectionID:collection.ID}}"> {{ collectionAliasGenerator(collection.collection_name) }}</router-link>
+      <router-link :to="{path:`/collection/${collection.ID}`}"> {{ collectionAliasGenerator(collection.collection_name) }}</router-link>
     </li>
   </ul>
 </template>

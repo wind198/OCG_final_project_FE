@@ -33,7 +33,6 @@ export default {
     const store = useStore();
     const route = useRoute();
     const empty = ref(null);
-
     const allCategory = computed(() => store.state.collectionModule.Categories);
 
     const checkEmpty = (categories) => {
@@ -59,35 +58,36 @@ export default {
 
     const fetchAllCategories = (allCategoryArray) => {
       const fetchWorkArray = allCategoryArray.map((c) => {
-        console.log("categoryID", c.ID);
         fetchSingleCategory(c.ID);
       });
       return Promise.all(fetchWorkArray);
     };
-    const watchCollectionAndCategories = (newRoute, oldRoute) => {
-      if (newRoute.params.collectionID !== oldRoute.params.collectionID) {
-        fetchCollection(newRoute.params.collectionID).then(() => {
-          if (typeof newRoute.params.categoryID === "undefined") {
+    const watchCollectionAndCategories = (newParams, oldParams) => {
+      if (
+        parseInt(newParams.collectionID) !=
+        parseInt(oldParams.collectionID)
+      ) {
+        console.log("collectionID are different");
+        fetchCollection(newParams.collectionID).then(() => {
+          if (typeof newParams.categoryID === "undefined") {
             fetchAllCategories(allCategory.value).then(() => {
               checkEmpty(allCategory.value);
             });
           } else {
             store.commit(`collectionModule/${CLEAR_PRODUCTS}`);
-            fetchSingleCategory(newRoute.params.categoryID).then(() => {
+            fetchSingleCategory(newParams.categoryID).then(() => {
               checkEmpty(allCategory.value);
             });
           }
         });
       } else {
-        if (typeof newRoute.params.categoryID === "undefined") {
+        if (typeof newParams.categoryID === "undefined") {
           fetchAllCategories(allCategory.value).then(() => {
-            console.log(allCategory.value);
             checkEmpty(allCategory.value);
           });
         } else {
           store.commit(`collectionModule/${CLEAR_PRODUCTS}`);
-          fetchSingleCategory(newRoute.params.categoryID).then(() => {
-            console.log(allCategory.value);
+          fetchSingleCategory(newParams.categoryID).then(() => {
             checkEmpty(allCategory.value);
           });
         }
@@ -95,13 +95,15 @@ export default {
     };
 
     watch(
-      route,
-      (newRoute, oldRoute) => {
-        watchCollectionAndCategories(newRoute, oldRoute);
+      ()=>route.params,
+      (newParams, oldParams) => {
+        console.log(newParams , oldParams );
+        watchCollectionAndCategories(newParams, oldParams);
       },
-      { immediate: false, deep: true }
+      
     );
     onMounted(() => {
+      console.log("onmounted");
       fetchCollection(route.params.collectionID).then(() => {
         if (typeof route.params.categoryID === "undefined") {
           fetchAllCategories(allCategory.value).then(() => {
@@ -123,7 +125,7 @@ export default {
 };
 </script>
 
-<style lang= "scss">
+<style lang= "scss" scoped>
 main {
   margin-bottom: 60px;
 }
@@ -148,7 +150,7 @@ h1 {
 }
 .sorry {
   display: inline-block;
-  margin:0  4% 20px;
+  margin: 0 4% 20px;
   height: fit-content;
   font-size: 1rem;
   letter-spacing: 0.1rem;

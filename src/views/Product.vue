@@ -48,7 +48,17 @@
           <div class="quantity-selection-container">
             <quantity-selector-comp />
           </div>
-          <button class="add-to-cart">Add to cart</button>
+          <div class="button-container">
+            <a class="add-to-cart big-button" @click="addToCart">
+              Add to cart
+              <span class="pick-variance" v-if="needToChooseVariance"
+                >Please pick a product variance</span
+              >
+            </a>
+            <router-link :to="{ path: `/cart` }" class="check-out big-button"
+              >checkout now</router-link
+            >
+          </div>
         </div>
         <div class="add-to-favorite">
           <img
@@ -58,7 +68,7 @@
         </div>
         <div class="description">
           <h3>Description:</h3>
-          <p v-for="p in description" :key="p.index"> {{p}}</p>
+          <p v-for="p in description" :key="p.index">{{ p }}</p>
         </div>
       </div>
     </div>
@@ -72,7 +82,8 @@ import { useStore } from "vuex";
 import { useRoute } from "vue-router";
 import { FETCH_SINGLE_PRODUCT } from "../store/actions.type";
 import VarianceCheckBoxComp from "../components/VarianceCheckBoxComp.vue";
-import {getMinPrice,getMaxPrice} from"../common/helper";
+import { getMinPrice, getMaxPrice, checkIfEmptyObject } from "../common/helper";
+import { ADD_ITEM, TOGGLE_ANIMATION } from "../store/mutations.type";
 export default {
   components: {
     QuantitySelectorComp,
@@ -105,9 +116,6 @@ export default {
     const variances = computed(
       () => store.state.productModule.ProductVariances
     );
-
-    
-   
 
     const category = computed(() => {
       const rawName = store.state.productModule.categoryName;
@@ -154,23 +162,26 @@ export default {
 
     const description = computed(() => {
       const descriptionText = store.state.productModule.description;
-      const paragraphArray = descriptionText.split("||").filter((e)=>e!=='\t');
+      const paragraphArray = descriptionText
+        .split("||")
+        .filter((e) => e !== "\t");
       console.log(paragraphArray);
       return paragraphArray;
     });
-
-    const colorPicked = ref("");
-    const sizePicked = ref("");
-    const pickedVariance = ref({});
-    const priceRange = ref([]);
+    const quantity = computed(() => store.state.productModule.quantitySelected);
     const priceToShow = computed(() => {
       if (typeof pickedVariance.value.price == "undefined") {
         return priceRange.value.join(" - ");
       } else return pickedVariance.value.price;
     });
+    const colorPicked = ref("");
+    const sizePicked = ref("");
+    const pickedVariance = ref({});
+    const needToChooseVariance = ref(null);
+    const priceRange = ref([]);
     const allowedColor = ref([]);
     const allowedSize = ref([]);
-
+    const showAnimation = ref(false);
     const handlePickColor = (valueClicked) => {
       if (colorPicked.value != valueClicked) {
         colorPicked.value = valueClicked;
@@ -199,7 +210,29 @@ export default {
         return "";
       }
     };
-    const addToCart = () => {};
+    const showAnimationAddToCart = () => {
+      store.commit(`homeModule/${TOGGLE_ANIMATION}`);
+      setTimeout(() => {
+        store.commit(`homeModule/${TOGGLE_ANIMATION}`);
+      }, 800);
+    };
+
+    const addToCart = () => {
+      const sendingItem = {
+        variance_id: pickedVariance.value.ID,
+        name: name.value,
+        image: image.value,
+        price: pickedVariance.value.price,
+        quantity: quantity.value,
+      };
+      for (const key in sendingItem) {
+        if (typeof sendingItem[key] == "undefined") {
+          return;
+        }
+      }
+      showAnimationAddToCart();
+      store.commit(`cartModule/${ADD_ITEM}`, sendingItem);
+    };
 
     watch([colorPicked, sizePicked], (newValue) => {
       pickedVariance.value = {};
@@ -213,6 +246,13 @@ export default {
             break;
           }
         }
+      }
+    });
+    watch(pickedVariance, (newPicked) => {
+      if (checkIfEmptyObject(newPicked)) {
+        needToChooseVariance.value = true;
+      } else {
+        needToChooseVariance.value = false;
       }
     });
 
@@ -229,14 +269,22 @@ export default {
         } else {
           priceRange.value.push(minPrice);
         }
+        if (variances.length <= 1) {
+          pickedVariance.value = variances[0];
+          needToChooseVariance.value = false;
+        } else {
+          needToChooseVariance.value = true;
+        }
       });
     });
     return {
       colorPicked,
       sizePicked,
       pickedVariance,
+      needToChooseVariance,
       showVarianceTable,
       priceToShow,
+      showAnimation,
       handlePickColor,
       handleClick,
       handlePickSize,
@@ -365,50 +413,68 @@ main {
         display: inline-block;
         vertical-align: top;
       }
-      button.add-to-cart {
-        height: 44px;
-        background-color: #f26f21;
-        border: none;
-        margin-left: 10%;
-        color: $color2;
-        font-weight: 500;
-        text-transform: uppercase;
-        font-size: calc(var(--font-size) * 0.7);
-        letter-spacing: 0.08rem;
-        width: 45%;
-      }
-    }
-    .add-to-favorite {
-      margin-bottom: 30px;
-      > * {
+      .button-container {
         display: inline-block;
-      }
-      img {
-        filter: brightness(0.3);
-        height: 40px;
-        width: auto;
-        margin-right: 0.25rem;
-        margin-left: calc(10% + 104px);
-      }
-      span {
-        height: 20px;
-        line-height: 20px;
-        font-size: calc(var(--font-size) * 0.7);
-        letter-spacing: 0.03rem;
-        vertical-align: bottom;
-        text-transform: uppercase;
-        color: rgba(75, 75, 75, 0.7);
+        width: 45%;
+        margin-left: 10%;
+        a:hover {
+          text-decoration: none;
+        }
+        a.add-to-cart {
+          &:hover span {
+            display: inline-block;
+          }
+          span {
+            position: absolute;
+            bottom: 110%;
+            left: 50%;
+            transform: translateX(-50%);
+            width: max-content;
+            background-color: $color2;
+            color: $color1;
+            border: 1px solid #e4e1e1;
+            border-radius: 10px;
+            font-size: 0.8rem;
+            font-weight: normal;
+            letter-spacing: normal;
+            text-transform: capitalize;
+            padding: 0.5rem 1rem;
+            display: none;
+          }
+        }
       }
     }
-    .description{
-      h3{
-        font-size: 1.2rem;
-       font-family: "Playfair Display", serif;
-      text-transform: uppercase; 
-      }
-      p{
-        margin: 10px 0;
-      }
+  }
+  .add-to-favorite {
+    margin-bottom: 30px;
+    > * {
+      display: inline-block;
+    }
+    img {
+      filter: brightness(0.3);
+      height: 40px;
+      width: auto;
+      margin-right: 0.25rem;
+      margin-left: calc(10% + 104px);
+    }
+    span {
+      height: 20px;
+      line-height: 20px;
+      font-size: calc(var(--font-size) * 0.7);
+      letter-spacing: 0.03rem;
+      vertical-align: bottom;
+      text-transform: uppercase;
+      color: rgba(75, 75, 75, 0.7);
+    }
+  }
+  .description {
+    h3 {
+      font-size: 1.2rem;
+      font-family: "Playfair Display", serif;
+      text-transform: uppercase;
+    }
+    p {
+      margin: 10px 0;
     }
   }
 }
