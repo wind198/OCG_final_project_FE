@@ -43,7 +43,7 @@
       </div>
       <div class="information">
         <h1>{{ name }}</h1>
-        <p class="price">our price $699.00</p>
+        <p class="price">our price ${{ priceToShow }}</p>
         <div class="add-to-cart">
           <div class="quantity-selection-container">
             <quantity-selector-comp />
@@ -56,6 +56,10 @@
             alt=""
           /><span>Save to wishlist</span>
         </div>
+        <div class="description">
+          <h3>Description:</h3>
+          <p v-for="p in description" :key="p.index"> {{p}}</p>
+        </div>
       </div>
     </div>
   </main>
@@ -63,11 +67,12 @@
 
 <script>
 import QuantitySelectorComp from "../components/QuantitySelectorComp.vue";
-import { computed, ref, onMounted } from "vue";
+import { computed, ref, onMounted, watch } from "vue";
 import { useStore } from "vuex";
 import { useRoute } from "vue-router";
 import { FETCH_SINGLE_PRODUCT } from "../store/actions.type";
 import VarianceCheckBoxComp from "../components/VarianceCheckBoxComp.vue";
+import {getMinPrice,getMaxPrice} from"../common/helper";
 export default {
   components: {
     QuantitySelectorComp,
@@ -75,24 +80,35 @@ export default {
   },
 
   setup() {
-    const colorPicked = ref("");
-    const sizePicked = ref("");
-
     const store = useStore();
     const route = useRoute();
     const fetchProductInfo = () => {
-      store.dispatch(`productModule/${FETCH_SINGLE_PRODUCT}`, {
+      return store.dispatch(`productModule/${FETCH_SINGLE_PRODUCT}`, {
         id: route.params.productID,
       });
     };
 
+    const getList = (attr) => {
+      const variances = store.state.productModule.ProductVariances;
+      const output = [];
+      variances.forEach((element) => {
+        if (element[attr] !== "" && output.indexOf(element[attr]) < 0) {
+          output.push(element[attr]);
+        }
+      });
+      return output;
+    };
+
     const id = computed(() => store.state.productModule.ID);
     const name = computed(() => store.state.productModule.name);
-    const description = computed(() => store.state.productModule.description);
     const image = computed(() => store.state.productModule.image);
     const variances = computed(
       () => store.state.productModule.ProductVariances
     );
+
+    
+   
+
     const category = computed(() => {
       const rawName = store.state.productModule.categoryName;
       return rawName.split("-").slice(1).join(" ");
@@ -100,22 +116,10 @@ export default {
     const showVarianceTable = computed(() => variances.value.length > 1);
 
     const colorList = computed(() => {
-      const output = [];
-      variances.value.forEach((element) => {
-        if (element.color !== "" && output.indexOf(element.color) < 0) {
-          output.push(element.color);
-        }
-      });
-      return output;
+      return getList("color");
     });
     const sizeList = computed(() => {
-      const output = [];
-      variances.value.forEach((element) => {
-        if (element.size !== "" && output.indexOf(element.size) < 0) {
-          output.push(element.size);
-        }
-      });
-      return output;
+      return getList("size");
     });
     const matchByColor = computed(() => {
       const output = {};
@@ -132,8 +136,6 @@ export default {
       }
       return output;
     });
-    const allowedColor = ref([]);
-    const allowedSize = ref([]);
     const matchBySize = computed(() => {
       const output = {};
       for (let i = 0; i < variances.value.length; i++) {
@@ -149,6 +151,25 @@ export default {
       }
       return output;
     });
+
+    const description = computed(() => {
+      const descriptionText = store.state.productModule.description;
+      const paragraphArray = descriptionText.split("||").filter((e)=>e!=='\t');
+      console.log(paragraphArray);
+      return paragraphArray;
+    });
+
+    const colorPicked = ref("");
+    const sizePicked = ref("");
+    const pickedVariance = ref({});
+    const priceRange = ref([]);
+    const priceToShow = computed(() => {
+      if (typeof pickedVariance.value.price == "undefined") {
+        return priceRange.value.join(" - ");
+      } else return pickedVariance.value.price;
+    });
+    const allowedColor = ref([]);
+    const allowedSize = ref([]);
 
     const handlePickColor = (valueClicked) => {
       if (colorPicked.value != valueClicked) {
@@ -179,13 +200,43 @@ export default {
       }
     };
     const addToCart = () => {};
+
+    watch([colorPicked, sizePicked], (newValue) => {
+      pickedVariance.value = {};
+      for (let i = 0; i < variances.value.length; i++) {
+        if (variances.value[i].color !== "" && variances.value[i].size !== "") {
+          if (
+            variances.value[i].color == newValue[0] &&
+            variances.value[i].size == newValue[1]
+          ) {
+            pickedVariance.value = variances.value[i];
+            break;
+          }
+        }
+      }
+    });
+
     onMounted(() => {
-      fetchProductInfo();
+      fetchProductInfo().then(() => {
+        allowedColor.value = getList("color");
+        allowedSize.value = getList("size");
+        const variances = store.state.productModule.ProductVariances;
+        const minPrice = getMinPrice(variances);
+        const maxPrice = getMaxPrice(variances);
+        if (maxPrice > minPrice) {
+          priceRange.value.push(minPrice);
+          priceRange.value.push(maxPrice);
+        } else {
+          priceRange.value.push(minPrice);
+        }
+      });
     });
     return {
       colorPicked,
       sizePicked,
+      pickedVariance,
       showVarianceTable,
+      priceToShow,
       handlePickColor,
       handleClick,
       handlePickSize,
@@ -251,7 +302,7 @@ main {
   }
   .left-column {
     float: left;
-    width: 50%;
+    width: 45%;
     display: flex;
     flex-direction: column;
     justify-content: center;
@@ -293,6 +344,7 @@ main {
   .information {
     width: 50%;
     float: right;
+    padding-right: 3rem;
     h1 {
       font-size: calc(var(--font-size) * 0.9);
       font-weight: 100;
@@ -327,6 +379,7 @@ main {
       }
     }
     .add-to-favorite {
+      margin-bottom: 30px;
       > * {
         display: inline-block;
       }
@@ -345,6 +398,16 @@ main {
         vertical-align: bottom;
         text-transform: uppercase;
         color: rgba(75, 75, 75, 0.7);
+      }
+    }
+    .description{
+      h3{
+        font-size: 1.2rem;
+       font-family: "Playfair Display", serif;
+      text-transform: uppercase; 
+      }
+      p{
+        margin: 10px 0;
       }
     }
   }

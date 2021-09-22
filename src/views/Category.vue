@@ -2,13 +2,19 @@
   <section>
     <div class="menu">
       <span>Refine by category</span>
-      <select name="category" id="category">
-        <option value="value1" selected>value1</option>
-        <option value="value2">value2</option>
-        <option value="value3">value3</option>
-        <option value="value4">value4</option>
+      <select name="category" id="category" @change="onChangeCategory">
+        <option value="" :selected="currentCategory == ''">All</option>
+        <option
+          v-for="option in optionList"
+          :key="option.ID"
+          :value="option.ID"
+          :selected="currentCategory == option.ID"
+        >
+          {{ option.category_name.split("-").slice(1).join(" ") }}
+        </option>
       </select>
     </div>
+   
     <div class="product-container">
       <product-comp
         v-for="product in products"
@@ -26,7 +32,7 @@
 
 <script>
 import { useStore } from "vuex";
-import { useRoute } from "vue-router";
+import { useRoute, useRouter } from "vue-router";
 import ProductComp from "../components/ProductComp.vue";
 import PageButtonComp from "../components/PageButtonComp.vue";
 import { computed, watch, ref } from "vue";
@@ -38,22 +44,50 @@ export default {
   setup() {
     const store = useStore();
     const route = useRoute();
+    const router = useRouter();
     const categoryID = computed(() => route.params.categoryID);
     const allCategory = computed(() => store.state.collectionModule.Categories);
     const products = ref([]);
-    watch(allCategory, (allCategory) => {
-      const productToShow = [];
-      if (allCategory.length > 0) {
-        console.log(allCategory.length);
-        allCategory.forEach((element) => {
-          if (element.Products !== null) {
-            productToShow.push(...element.Products);
-          }
-        });
+    const optionList = ref([]);
+    const currentCategory = ref("");
+    const onChangeCategory = (e) => {
+      console.log("CHANGED", e.target.value);
+      const targetID = e.target.value;
+      if (route.params.categoryID != targetID) {
+        router.push(`/collection/${route.params.collectionID}/${targetID}`);
       }
-      products.value=productToShow;
-    },{deep:true});
-    return { products, categoryID, allCategory };
+    };
+    watch(route, (route) => {
+      if (typeof route.params.categoryID == "undefined") {
+        currentCategory.value = "";
+      } else {
+        currentCategory.value = route.params.categoryID;
+      }
+    });
+    watch(
+      allCategory,
+      (allCategory) => {
+        const productToShow = [];
+        if (allCategory.length > 0) {
+          allCategory.forEach((element) => {
+            if (element.Products !== null) {
+              productToShow.push(...element.Products);
+            }
+          });
+          optionList.value = [...allCategory];
+        }
+        products.value = productToShow;
+      },
+      { deep: true }
+    );
+    return {
+      products,
+      optionList,
+      categoryID,
+      allCategory,
+      currentCategory,
+      onChangeCategory,
+    };
   },
 };
 </script>
@@ -82,6 +116,7 @@ export default {
     }
   }
 }
+
 .product-container {
   margin: 0 4%;
   height: max-content;

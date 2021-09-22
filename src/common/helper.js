@@ -43,3 +43,22 @@ export const generatePageAlias = (name) => {
   } else return name.replaceAll("-", " ");
 };
 
+export const getMaxPrice = (variances) => {
+  let maxPrice = 0;
+  variances.forEach((e) => {
+    if (parseFloat(e.price) > maxPrice) {
+      maxPrice = parseFloat(e.price);
+    }
+  });
+  return maxPrice;
+};
+
+export const getMinPrice = (variances) => {
+  let minPrice = 100000;
+  variances.forEach((e) => {
+    if (parseFloat(e.price) < minPrice) {
+      minPrice = parseFloat(e.price);
+    }
+  });
+  return minPrice;
+};

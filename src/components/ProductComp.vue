@@ -1,9 +1,15 @@
 <template>
   <div class="product-info">
-    <img class="product-image" :src="image" alt="" />
+    <div class="image-container">
+      <img class="product-image" :src="image" alt="" />
+    </div>
     <div class="info">
-      <p class="name"><router-link :to="{name:'product',params:{productID:id}}">{{ name }}</router-link></p>
-      <p class="price">Our price 55$</p>
+      <p class="name">
+        <router-link :to="{ name: 'product', params: { productID: id } }">{{
+          name
+        }}</router-link>
+      </p>
+      <p class="price">Our price {{ priceRange }}$</p>
       <div class="action">
         <div class="image-holder">
           <img
@@ -24,6 +30,8 @@
 </template>
 
 <script>
+import { computed } from "@vue/reactivity";
+import { getMinPrice, getMaxPrice } from "../common/helper";
 export default {
   props: {
     id: Number,
@@ -32,7 +40,18 @@ export default {
     variances: Array,
     image: String,
   },
-  
+  setup(props) {
+    const priceRange = computed(() => {
+      const minPrice = getMinPrice(props.variances);
+      const maxPrice = getMaxPrice(props.variances);
+      if (maxPrice > minPrice) {
+        return minPrice + " - " + maxPrice;
+      } else {
+        return maxPrice;
+      }
+    });
+    return { priceRange };
+  },
 };
 </script>
 
@@ -42,19 +61,31 @@ export default {
   border-radius: 20px;
   background-color: #fff;
   width: 100%;
-  img.product-image {
-    max-width: 100%;
-    max-height: 200px;
-    display: block;
-    margin: auto;
+  .image-container {
+    background-color: #fff;
+
+    img.product-image {
+      max-width: 100%;
+      max-height: 200px;
+      display: block;
+      margin: auto;
+    }
   }
   .info {
     --font-size: 0.9rem;
     background-color: $color2;
+    padding: 1rem 1rem 1rem 1rem;
     .name {
-      font-family: "Playfair Display", serif;
-      font-size: calc(var(--font-size));
-      text-transform: uppercase;
+      a {
+        font-family: "Playfair Display", serif;
+        font-size: calc(var(--font-size));
+        text-transform: uppercase;
+        color: $color1;
+        &:hover {
+          color: $color1;
+          text-decoration: none;
+        }
+      }
     }
     .price {
       font-weight: 500;

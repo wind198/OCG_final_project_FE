@@ -2,14 +2,41 @@
   <div class="quantity-selection">
     <!-- <label>Quantity</label>-->
 
-    <a class="down"><i class="fas fa-plus"></i></a>
-    <input min="1" type="text" name="quantity" class="quantity" value="1" />
-    <a class="up"><i class="fas fa-minus"></i> </a>
+    <a class="down" @click="onDec"><i class="fas fa-minus"></i></a>
+    <input
+      min="1"
+      type="text"
+      name="quantity"
+      class="quantity"
+      v-model="quantity"
+    />
+    <a class="up" @click="onInc"><i class="fas fa-plus"></i> </a>
   </div>
 </template>
 
 <script>
-export default {};
+import {  ref } from "@vue/reactivity";
+import { useStore } from "vuex";
+import { watch } from "@vue/runtime-core";
+import { SET_QUANTITY_SELECTED } from "../store/mutations.type";
+export default {
+  setup() {
+    const store = useStore();
+    const quantity = ref(1);
+    const onInc = () => {
+      quantity.value++;
+    };
+    const onDec = () => {
+      quantity.value--;
+    };
+
+    watch(quantity, (value) => {
+      store.commit(`productModule/${SET_QUANTITY_SELECTED}`,value);
+    });
+  return{quantity,onInc,onDec};
+  
+  },
+};
 </script>
 
 <style lang="scss" scoped>

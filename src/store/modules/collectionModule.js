@@ -53,7 +53,6 @@ const actions = {
 const mutations = {
 
     [SET_COLLECTION_CATEGORIES](state, collection) {
-        console.log(collection);
         for (const key in collection) {
             if (Object.hasOwnProperty.call(state, key)) {
                 state[key] = collection[key];

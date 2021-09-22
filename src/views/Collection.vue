@@ -1,6 +1,9 @@
 <template>
   <main>
     <heading-comp :text="collectionName" />
+    <div class="sorry" v-show="empty">
+      Sorry, we currently do not have products in this category...
+    </div>
     <router-view />
     <div class="pages">
       <page-button-comp :value="1" />
@@ -16,7 +19,7 @@ import HeadingComp from "../components/HeadingComp.vue";
 import { useStore } from "vuex";
 import { useRoute } from "vue-router";
 // import { useRouter } from "vue-router";
-import { computed, onMounted, watch } from "vue";
+import { computed, onMounted, watch, ref } from "vue";
 import {
   FETCH_SINGLE_COLLECTION,
   FETCH_SINGLE_CATEGORY,
@@ -29,37 +32,64 @@ export default {
   setup() {
     const store = useStore();
     const route = useRoute();
+    const empty = ref(null);
+
+    const allCategory = computed(() => store.state.collectionModule.Categories);
+
+    const checkEmpty = (categories) => {
+      console.log("checking");
+      empty.value = false;
+      let countProduct = 0;
+      categories.forEach((c) => {
+        countProduct += c.Products.length;
+      });
+      if (countProduct == 0) {
+        empty.value = true;
+      }
+    };
 
     const fetchCollection = (id) =>
       store.dispatch(`collectionModule/${FETCH_SINGLE_COLLECTION}`, { id });
 
     const fetchSingleCategory = (id) => {
-      store.dispatch(`collectionModule/${FETCH_SINGLE_CATEGORY}`, { id: id });
+      return store.dispatch(`collectionModule/${FETCH_SINGLE_CATEGORY}`, {
+        id: id,
+      });
     };
 
     const fetchAllCategories = (allCategoryArray) => {
-      allCategoryArray.forEach((category) => {
-        fetchSingleCategory(category.ID);
+      const fetchWorkArray = allCategoryArray.map((c) => {
+        console.log("categoryID", c.ID);
+        fetchSingleCategory(c.ID);
       });
+      return Promise.all(fetchWorkArray);
     };
     const watchCollectionAndCategories = (newRoute, oldRoute) => {
       if (newRoute.params.collectionID !== oldRoute.params.collectionID) {
         fetchCollection(newRoute.params.collectionID).then(() => {
           if (typeof newRoute.params.categoryID === "undefined") {
-            const allCategory = store.state.collectionModule.Categories;
-            fetchAllCategories(allCategory);
+            fetchAllCategories(allCategory.value).then(() => {
+              checkEmpty(allCategory.value);
+            });
           } else {
             store.commit(`collectionModule/${CLEAR_PRODUCTS}`);
-            fetchSingleCategory(newRoute.params.categoryID);
+            fetchSingleCategory(newRoute.params.categoryID).then(() => {
+              checkEmpty(allCategory.value);
+            });
           }
         });
       } else {
         if (typeof newRoute.params.categoryID === "undefined") {
-          const allCategory = store.state.collectionModule.Categories;
-          fetchAllCategories(allCategory);
+          fetchAllCategories(allCategory.value).then(() => {
+            console.log(allCategory.value);
+            checkEmpty(allCategory.value);
+          });
         } else {
           store.commit(`collectionModule/${CLEAR_PRODUCTS}`);
-          fetchSingleCategory(newRoute.params.categoryID);
+          fetchSingleCategory(newRoute.params.categoryID).then(() => {
+            console.log(allCategory.value);
+            checkEmpty(allCategory.value);
+          });
         }
       }
     };
@@ -73,20 +103,22 @@ export default {
     );
     onMounted(() => {
       fetchCollection(route.params.collectionID).then(() => {
-        console.log(route);
         if (typeof route.params.categoryID === "undefined") {
-          const allCategory = store.state.collectionModule.Categories;
-          fetchAllCategories(allCategory);
+          fetchAllCategories(allCategory.value).then(() => {
+            checkEmpty(allCategory.value);
+          });
         } else {
           store.commit(`collectionModule/${CLEAR_PRODUCTS}`);
-          fetchSingleCategory(route.params.categoryID);
+          fetchSingleCategory(route.params.categoryID).then(() => {
+            checkEmpty(allCategory.value);
+          });
         }
       });
     });
     const collectionName = computed(
       () => store.state.collectionModule.collection_name
     );
-    return { collectionName };
+    return { collectionName, empty };
   },
 };
 </script>
@@ -113,5 +145,14 @@ h1 {
     content: "";
     margin: 10px auto;
   }
+}
+.sorry {
+  display: inline-block;
+  margin:0  4% 20px;
+  height: fit-content;
+  font-size: 1rem;
+  letter-spacing: 0.1rem;
+  font-family: "Playfair Display", serif;
+  text-transform: uppercase;
 }
 </style>
