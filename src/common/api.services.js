@@ -3,9 +3,10 @@ const ApiServices = {
     query(resource, params) {
         return app.axios.get(resource, params)
     },
-    get(resource, id = "") {
-        return app.axios.post(`${resource}/${id}`);
-    },
+ 
+    post(resource,params){
+        return app.axios.post(resource,params)
+    }
 }
 
 export default ApiServices;

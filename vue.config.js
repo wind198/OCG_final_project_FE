@@ -4,12 +4,16 @@ module.exports = {
       scss: {
         prependData:
           `@import "@/scss/_color.scss";
-            @import "@/scss/_component.scss";`
+            @import "@/scss/_component.scss";
+            @import "@/scss/_text.scss";
+            @import "@/scss/_utility.scss";
+            
+            `
       }
     }
   },
   devServer: {
-    proxy: "http://localhost:9911/api"
+    proxy: "http://localhost:9922/api"
 
 
   },

@@ -5,7 +5,14 @@ const routes = [
   {
     path: '/',
     name: 'home',
-    component: Home
+    component: Home,
+    children: [
+      {
+        path: '/payment-success',
+        name: 'paymentSuccess',
+        component: () => import('../views/PaymentSuccess.vue'),
+      }
+    ]
   },
   {
     path: '/page/:pageID',
@@ -37,19 +44,24 @@ const routes = [
   {
     path: '/cart',
     name: 'cart',
-    component: () => import('../views/ShoppingCart.vue')
-  },
-  {
-    path: '/checkout',
-    name: 'checkout',
-    component: () => import('../views/Checkout.vue')
-    , children: [
+    component: () => import('../views/ShoppingCart.vue'),
+    children:[
       {
-        path: '',
-        component: () => import('../views/ShoppingCart.vue')
-      }
+        path: '/checkout',
+        name: 'checkout',
+        component: () => import('../views/Checkout.vue')
+      },
     ]
   },
+  {
+
+    path:'/analysis',
+    name:'analysis',
+    component:()=>import('../views/Analysis.vue')
+
+  }
+ 
+
 ]
 
 const router = createRouter({

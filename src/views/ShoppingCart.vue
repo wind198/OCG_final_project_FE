@@ -29,6 +29,7 @@
         </div>
       </div>
     </div>
+    <router-view/>
   </main>
 </template>
 
@@ -74,18 +75,20 @@ main {
     }
     .item-list {
       .headings {
-        display: flex;
-        justify-content: space-between;
+        display: grid;
+        grid-template-columns: 50% 10% 10% 10% 10% 10% ;
         border-bottom: 1px solid $color1;
         padding-bottom: 0.2rem;
         span {
-          display: inline-block;
+          display: block;
+          margin: auto;
           font-weight: 400;
-          width: 8%;
           text-align: center;
         }
         span:first-child {
           width: 40%;
+          margin-left: 0;
+          margin-right: auto;
           text-align: left;
           padding-left: 1rem;
         }

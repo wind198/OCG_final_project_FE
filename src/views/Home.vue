@@ -4,6 +4,7 @@
     <style-browse-comp />
     <page-browse-comp />
     <customer-experience-comp/>
+    <router-view/>
   </main>
 </template>
 

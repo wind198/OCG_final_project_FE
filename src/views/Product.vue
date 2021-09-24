@@ -328,24 +328,7 @@ main {
       text-transform: uppercase;
       position: relative;
       text-align: center;
-      &::after {
-        content: "";
-        display: block;
-        width: 90px;
-        border: 1px solid $color1;
-        position: absolute;
-        top: 50%;
-        left: 110%;
-      }
-      &::before {
-        content: "";
-        display: block;
-        width: 90px;
-        border: 1px solid $color1;
-        position: absolute;
-        top: 50%;
-        right: 110%;
-      }
+     
     }
   }
   .left-column {

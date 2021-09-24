@@ -39,7 +39,6 @@ const actions = {
     },
     async  [FETCH_SINGLE_CATEGORY]({ commit }, payload) {
         try {
-            console.log("payload", payload.id);
             const data = await ApiServices.query(`/products/${productPerPage}/0/categories/${payload.id}`)
             commit(SET_CATEGORY_PRODUCTS, { categoryID: payload.id, products: data.data });
         }

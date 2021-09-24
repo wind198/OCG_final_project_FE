@@ -48,11 +48,11 @@ export default {
     };
 
     const fetchCollection = (id) =>
-      store.dispatch(`collectionModule/${FETCH_SINGLE_COLLECTION}`, { id });
+      store.dispatch(`collectionModule/${FETCH_SINGLE_COLLECTION}`, { id:parseInt(id) });
 
     const fetchSingleCategory = (id) => {
       return store.dispatch(`collectionModule/${FETCH_SINGLE_CATEGORY}`, {
-        id: id,
+        id: parseInt(id),
       });
     };
 

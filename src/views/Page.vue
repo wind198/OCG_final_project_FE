@@ -27,7 +27,7 @@ export default {
     let id = computed(() => route.params.pageID);
 
     const fetchPage = (id) =>
-      store.dispatch(`homeModule/${FETCH_SINGLE_PAGE}`, { id });
+      store.dispatch(`homeModule/${FETCH_SINGLE_PAGE}`, { id:parseInt(id) });
 
     onMounted(fetchPage(id.value));
     watch(id, (value) => {

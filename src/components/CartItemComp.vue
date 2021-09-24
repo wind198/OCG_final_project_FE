@@ -34,7 +34,7 @@ export default {
       return props.price * props.quantity;
     });
     const removeItem = () => {
-        console.log("removing",props.id);
+      console.log("removing", props.id);
       store.commit(`cartModule/${REMOVE_ITEM}`, props.id);
     };
     return { total, removeItem };
@@ -48,25 +48,37 @@ export default {
   width: 100%;
   height: var(--line-height);
   padding: 0.5rem 0rem;
-  display: flex;
-  justify-content: space-between;
+  display: grid;
+  grid-template-columns: 50% 10% 10% 10% 10% 10%;
+
   border-bottom: 1px solid $color1;
   > * {
-    width: 8%;
-    text-align: center;
+    margin: 0 auto;
   }
   .name-image {
-    height: 100%;
-    width: 40%;
-    text-align: left;
+    height: calc(100% - 1rem);
+    width: 100%;
+    overflow: hidden;
+    display: flex;
+    justify-content: flex-start;
     .image-container {
-      display: inline-block;
-      margin-right: 1vw;
       height: 100%;
+      display: inline-block;
+      width: 30%;
+      vertical-align: top;
       img {
+        display: block;
         height: 100%;
         width: auto;
       }
+    }
+    span.name {
+      vertical-align: top;
+      width: 60%;
+      height: 100%;
+      display: inline-flex;
+      justify-content: center;
+      align-items: center;
     }
   }
   > span {

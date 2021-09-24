@@ -11,5 +11,10 @@ export const REMOVE_ITEM="removeItem";
 export const CLEAR_CART="clearCart";
 export const SET_ITEM="setItem";
 export const TOGGLE_ANIMATION="toggleAnimation";
+export const SET_CONFIRMED_ORDER="setOrder"
+export const CLEAR_SEND_ORDER_RESULT= "clearSendOrderResult";
+export const FULLFILL_ORDER="fullfillOrder";
+export const SET_PAYMENT_FAILED="setPaymentFailed";
+export const SET_FAILED_ORDER="setFailedOrder";
 
-
+export const  SET_PAYMENT_SUCCESS="setPaymentSuccess";
