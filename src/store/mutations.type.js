@@ -18,3 +18,11 @@ export const SET_PAYMENT_FAILED="setPaymentFailed";
 export const SET_FAILED_ORDER="setFailedOrder";
 
 export const  SET_PAYMENT_SUCCESS="setPaymentSuccess";
+
+export const RESET_DATA="resetData";
+export const SET_GET_REPORT_FAIL="setGetReportFail";
+export const SET_GET_REPORT_SUCCESS="setGetReportSuccess";
+export const SET_LOGIN="setGetReportSuccess";
+export const SET_LOGOUT="setGetReportSuccess";
+export const HIDE_LOADING="hideLoading";
+export const SHOW_LOADING="showLoading";

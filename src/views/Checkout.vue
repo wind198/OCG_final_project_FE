@@ -113,15 +113,13 @@
 import { useStore } from "vuex";
 import { computed, onMounted, ref, watch } from "vue";
 import BillItemComp from "../components/BillItemComp.vue";
-import { SEND_ORDER } from "../store/actions.type";
-import { useRoute } from "vue-router";
+import { SEND_ORDER, SET_ORDER_FULFILLED } from "../store/actions.type";
+import { useRoute, useRouter } from "vue-router";
 import {
   CLEAR_SEND_ORDER_RESULT,
-  FULLFILL_ORDER,
   SET_ERRORS,
   SET_FAILED_ORDER,
   SET_PAYMENT_FAILED,
-  SET_PAYMENT_SUCCESS,
 } from "../store/mutations.type";
 import { STRIPE_PUBLISHABLE_KEY } from "../common/config";
 import { loadStripe } from "@stripe/stripe-js";
@@ -130,10 +128,11 @@ export default {
   components: { BillItemComp },
   setup() {
     const route = useRoute();
-    const customer_name = ref("");
-    const email = ref("");
-    const phone = ref("");
-    const address = ref("");
+    const router = useRouter();
+    const customer_name = ref("Le Hoang Tuan");
+    const email = ref("tuanbk1908@gmail.com");
+    const phone = ref("0968576908");
+    const address = ref("150a4 Nguyen Canh Di, Hanoi");
     const showOrderMessage = ref(false);
     const showPaymentMessage = ref(false);
 
@@ -165,11 +164,11 @@ export default {
       paymentSucess,
       (value) => {
         showPaymentMessage.value = true;
-        if (value){
-          customer_name.value="";
-          email.value="";
-          phone.value="";
-          address.value="";
+        if (value) {
+          customer_name.value = "";
+          email.value = "";
+          phone.value = "";
+          address.value = "";
         }
       },
       { deep: true }
@@ -268,8 +267,12 @@ export default {
           return;
         }
         console.log("paymentIntent", paymentIntent);
-        store.dispatch(`cartModule/${SET_ORDER_FULFILLED}`);
-         
+        await store.dispatch(
+          `cartModule/${SET_ORDER_FULFILLED}`,
+          orderID.value
+        );
+
+        setTimeout(() => router.push("/payment-success"), 800);
       };
 
       document
@@ -323,14 +326,7 @@ export default {
         font-size: inherit;
       }
     }
-    .order-message.success,
-    .payment-message.success {
-      color: rgb(59, 192, 59);
-    }
-    .order-message.fail,
-    .payment-message.fail {
-      color: rgb(206, 75, 75);
-    }
+
     h1 {
       text-transform: uppercase;
       font-size: 1.5rem;

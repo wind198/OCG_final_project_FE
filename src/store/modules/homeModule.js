@@ -1,12 +1,13 @@
 import { FETCH_ALL_PAGE, FETCH_SINGLE_PAGE } from "../actions.type";
-import { SET_PAGE,SET_MAIN_PAGE, SET_ERRORS,TOGGLE_ANIMATION } from "../mutations.type"
+import { SHOW_LOADING,HIDE_LOADING,SET_PAGE,SET_MAIN_PAGE, SET_ERRORS,TOGGLE_ANIMATION } from "../mutations.type"
 import ApiServices from "../../common/api.services"
 const state = {
     pages: null,
     mainPageID: "",
     collections: null,
     errors: null,
-    showAnimation:false
+    showAnimation:false,
+    loading:true,
 
 }
 
@@ -49,6 +50,12 @@ const mutations = {
     },
     [TOGGLE_ANIMATION](state){
         state.showAnimation=!state.showAnimation;
+    },
+    [SHOW_LOADING](state){
+        state.loading=true;
+    },
+    [HIDE_LOADING](state){
+        state.loading=false;
     }
 
 }

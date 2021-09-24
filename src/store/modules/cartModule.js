@@ -55,7 +55,9 @@ const actions = {
     },
     async [SET_ORDER_FULFILLED]({ commit }, orderID) {
         try {
+            console.log("before sucess",orderID);
             commit(SET_PAYMENT_SUCCESS);
+            console.log("after sucess",orderID);
             const response = await ApiServices.query(`/orders/${orderID}/fulfill`);
             console.log(response.data);
         } catch (error) {

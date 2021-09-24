@@ -45,8 +45,8 @@
               alt=""
           /></a>
         </div>
-        <div class="cart">  
-          <router-link :to="{path:`/cart`}"
+        <div class="cart">
+          <router-link :to="{ path: `/cart` }"
             ><img
               src="https://cdn.shopify.com/s/files/1/1089/1214/t/190/assets/shopping-cart-icon.svg?v=3445795434587133615"
               alt=""
@@ -75,6 +75,7 @@
         <li id="sale" class="nav-main-item"><a href="#">sale</a></li>
       </ul>
     </nav>
+    <div class="loading-icon"></div>
   </header>
 </template>
 
@@ -101,6 +102,7 @@ export default {
       currentNode.childNodes[1].classList.add("hiding");
     };
     const showAnimation = computed(() => store.state.homeModule.showAnimation);
+    
     return {
       generatePageAlias,
       mouseEnterShowSubList,
@@ -248,6 +250,38 @@ header {
           }
         }
       }
+    }
+  }
+  .loading-icon {
+    --side:50px;
+    position: fixed;
+    top: 50%;left: 50%;
+    transform: translate(-50%,-50%);
+    border: calc(var(--side) * 0.125) solid #f3f3f3;
+    border-radius: 50%;
+    border-top: calc(var(--side) * 0.125) solid #3498db;
+    width: var(--side);
+    height: var(--side);
+    -webkit-animation: spin 2s linear infinite; /* Safari */
+    animation: spin 1s linear infinite;
+  }
+
+  /* Safari */
+  @-webkit-keyframes spin {
+    0% {
+      -webkit-transform: rotate(0deg);
+    }
+    100% {
+      -webkit-transform: rotate(360deg);
+    }
+  }
+
+  @keyframes spin {
+    0% {
+      transform: rotate(0deg);
+    }
+    100% {
+      transform: rotate(360deg);
     }
   }
 }

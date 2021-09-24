@@ -11,7 +11,10 @@ const routes = [
         path: '/payment-success',
         name: 'paymentSuccess',
         component: () => import('../views/PaymentSuccess.vue'),
-      }
+      },
+
+
+
     ]
   },
   {
@@ -45,7 +48,7 @@ const routes = [
     path: '/cart',
     name: 'cart',
     component: () => import('../views/ShoppingCart.vue'),
-    children:[
+    children: [
       {
         path: '/checkout',
         name: 'checkout',
@@ -55,11 +58,11 @@ const routes = [
   },
   {
 
-    path:'/analysis',
-    name:'analysis',
-    component:()=>import('../views/Analysis.vue')
+    path: '/analysis',
+    name: 'analysis',
+    component: () => import('../views/Analysis.vue')
 
-  }
+  },
  
 
 ]

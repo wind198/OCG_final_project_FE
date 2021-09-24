@@ -1,21 +1,21 @@
-.big-button{
-        cursor: pointer;
-        height: 44px;
-        text-align: center;
-        line-height: 43px;
-        display: block;
-        background-color: #f26f21;
-        outline: none;
-        border: none;
-        color: $color2!important;
-        font-weight: 500;
-        text-transform: uppercase;
-        font-size: calc(var(--font-size) * 0.7);
-        letter-spacing: 0.08rem;
-        width: 100%;
-        position: relative;
+.big-button {
+    cursor: pointer;
+    height: 44px;
+    text-align: center;
+    line-height: 43px;
+    display: block;
+    background-color: #f26f21;
+    outline: none;
+    border: none;
+    color: $color2 !important;
+    font-weight: 500;
+    text-transform: uppercase;
+    font-size: calc(var(--font-size) * 0.7);
+    letter-spacing: 0.08rem;
+    width: 100%;
+    position: relative;
 }
-.normal-button{
+.normal-button {
     cursor: pointer;
     text-align: center;
     outline: none;
@@ -25,22 +25,41 @@
     position: relative;
 }
 
-.input-container{
+.input-container {
     display: block;
     width: 100%;
-    input{
+    input {
         display: inline-block;
         width: 60%;
         outline: none;
-        padding: 0.4rem 0.6rem ;
+        padding: 0.4rem 0.6rem;
         border: 1px solid rgba(212, 211, 211, 1);
         font-size: 0.8rem;
 
         border-radius: 5px;
     }
-    label{
+    label {
         display: inline-block;
         width: 35%;
         margin-right: 5%;
     }
+}
+.plot-field {
+    background-color: $plotFieldColor;
+    margin: auto;
+    display: block;
+}
+.bar {
+    /* Permalink - use to edit and share this gradient: https://colorzilla.com/gradient-editor/#4c4c4c+0,595959+12,666666+25,474747+39,2c2c2c+50,000000+51,111111+60,2b2b2b+76,1c1c1c+91,131313+100;Black+Gloss+%231 */
+    fill: #fc912e; /* Old browsers */
+}
+.axis {
+    color: $axisColor;
+}
+.axis-text {
+    color:$axisTextColor;
+    font-size: 0.7rem;
+    position: absolute;
+    display: block;text-align: center;
+    transform: translate(-50%,0);
 }

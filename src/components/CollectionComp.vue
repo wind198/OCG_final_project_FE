@@ -29,10 +29,11 @@ export default {
 .collection {
   width: 100%;
   padding: 4% 2%;
+  max-height: 40vh;
   position: relative;
   img {
-    width: 100%;
-    height: auto;
+    max-width: 100%;
+    max-height: 100%;display: block;margin: auto;
   }
   span {
     position: absolute;

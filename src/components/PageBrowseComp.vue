@@ -6,52 +6,49 @@
         <div class="image-holder"></div>
         <div class="detailed-info">
           <h2>
-            <a href="#">Furniture</a>
+            <router-link :to="{path:`/page/1`}">Furniture</router-link>
           </h2>
           <p>
             We have some of the world's most unique collections to fit your
             style.
           </p>
-          <a href="#">Shop now </a>
+          <router-link :to="{path:`/page/1`}">Shop now </router-link>
         </div>
       </div>
       <div class="page" id="decor">
         <div class="image-holder"></div>
         <div class="detailed-info">
           <h2>
-            <a href="#">Furniture</a>
+            <router-link :to="{path:`/page/2`}">DECOR</router-link>
           </h2>
           <p>
-            We have some of the world's most unique collections to fit your
-            style.
+           A STUNNING SELECTION OF HOMEWARES, RUGS, ART AND GIFTS FOR THE HOME.
           </p>
-          <a href="#">Shop now </a>
+          <router-link :to="{path:`/page/2`}">Shop now </router-link>
         </div>
       </div>
       <div class="page" id="lighting">
         <div class="image-holder"></div>
         <div class="detailed-info">
           <h2>
-            <a href="#">Furniture</a>
+            <router-link :to="{path:`/page/3`}">LIGHTING</router-link>
           </h2>
           <p>
-            We have some of the world's most unique collections to fit your
-            style.
+            TRANSFORM YOUR SPACE WITH DRAMATIC LIGHTING AND COSY LAMPS.
           </p>
-          <a href="#">Shop now </a>
+          <router-link :to="{path:`/page/3`}">Shop now </router-link>
         </div>
       </div>
       <div class="page" id="outdoor-furniture">
         <div class="image-holder"></div>
         <div class="detailed-info">
           <h2>
-            <a href="#">Furniture</a>
+            <router-link :to="{path:`/page/4`}">OUTDOOR FURNITURE</router-link>
           </h2>
           <p>
-            We have some of the world's most unique collections to fit your
-            style.
+           THE WARMER WEATHER INSPIRES AN OUTDOOR RESET.
           </p>
-          <a href="#">Shop now </a>
+          <router-link :to="{path:`/page/4`}">Shop now </router-link>
         </div>
       </div>
     </div>

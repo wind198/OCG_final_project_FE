@@ -4,92 +4,92 @@
     <div class="group2">
       <ul class="slides" :style="{ left: sliderLeftPosition }">
         <li>
-          <a href="#">
+          <router-link :to="{path: `/page/3`}">
             <img
               src="//cdn.shopify.com/s/files/1/1089/1214/t/288/assets/slide11.jpg?v=10109798114861210865"
               alt="Shop Lighting"
               draggable="false"
-          /></a>
+          /></router-link>
         </li>
         <li>
-          <a href="#">
+          <router-link :to="{path: `/collection/7/180`}">
             <img
               src="//cdn.shopify.com/s/files/1/1089/1214/t/288/assets/slide3.jpg?v=4189319934854920825"
               alt="shop sofas and lounges"
               draggable="false"
-          /></a>
+          /></router-link>
         </li>
         <li>
-          <a href="#">
+          <router-link :to="{path: `/page/2`}">
             <img
               src="//cdn.shopify.com/s/files/1/1089/1214/t/288/assets/slide4.jpg?v=3999859680269009106"
               alt="Shop Home Décor"
               draggable="false"
-          /></a>
+          /></router-link>
         </li>
         <li>
-          <a href="#">
+          <router-link :to="{path: `/collection/8/223`}">
             <img
               src="//cdn.shopify.com/s/files/1/1089/1214/t/288/assets/slide5.jpg?v=1924652791825061514"
               alt="Shop Console Tables"
               draggable="false"
-          /></a>
+          /></router-link>
         </li>
         <li>
-          <a href="#">
+          <router-link :to="{path: `/collection/20`}">
             <img
               src="//cdn.shopify.com/s/files/1/1089/1214/t/288/assets/slide6.jpg?v=2500567913449848211"
               alt="Shop Decorative Mirrors"
               draggable="false"
-          /></a>
+          /></router-link>
         </li>
         <li>
-          <a href="#">
+          <router-link :to="{path: `/collection/8/222`}">
             <img
               src="//cdn.shopify.com/s/files/1/1089/1214/t/288/assets/slide7.jpg?v=5762248559185310076"
               alt="Shop Coffee Tables"
               draggable="false"
-          /></a>
+          /></router-link>
         </li>
         <li>
-          <a href="#">
+         <router-link :to="{path: `page/4`}">
             <img
               src="//cdn.shopify.com/s/files/1/1089/1214/t/288/assets/slide8.jpg?v=12329981892814460742"
               alt="Shop Outdoor Furniture"
               draggable="false"
-          /></a>
+          /></router-link>
         </li>
         <li>
-          <a href="#">
+         <router-link :to="{path: `/collection/9/81`}">
             <img
               src="//cdn.shopify.com/s/files/1/1089/1214/t/288/assets/slide9.jpg?v=15181316312449314216"
               alt="Shop Cabinets"
               draggable="false"
-          /></a>
+          /></router-link>
         </li>
         <li>
-          <a href="#">
+         <router-link :to="{path: `collection/14`}">
             <img
               src="//cdn.shopify.com/s/files/1/1089/1214/t/288/assets/slide10.jpg?v=2947097797438884224"
               alt="Shop Cushions"
               draggable="false"
-          /></a>
+          /></router-link>
         </li>
         <li>
-          <a href="#">
+         <router-link :to="{path: `/page/3`}">
             <img
               src="//cdn.shopify.com/s/files/1/1089/1214/t/288/assets/slide11.jpg?v=10109798114861210865"
               alt="Shop Lighting"
               draggable="false"
-          /></a>
+          /></router-link>
         </li>
         <li>
-          <a href="#">
+         <router-link :to="{path: `/collection/7/180`}">
             <img
               src="//cdn.shopify.com/s/files/1/1089/1214/t/288/assets/slide3.jpg?v=4189319934854920825"
               alt="shop sofas and lounges"
               draggable="false"
-          /></a>
+          /></router-link>
         </li>
       </ul>
       <option-selector-comp

@@ -68,3 +68,8 @@ export const checkIfEmptyObject = (obj) => {
     return true;
   } else { return false }
 }
+
+//help svg shape drawing
+export const calculateXdistanceBetweenBar = (fieldWidth, padding, numberOfBar) => {
+  return (fieldWidth - 2 * padding) / numberOfBar;
+} 

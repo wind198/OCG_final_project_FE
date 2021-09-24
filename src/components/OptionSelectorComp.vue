@@ -1,27 +1,32 @@
 <template>
-  <div class="selector">
-  <div class="option" :class="size" v-for="i in amountArray" :key="i.index"></div>
+  <div class="selector" id="selector">
+    <div
+      class="option"
+      :class="size"
+      v-for="i in amountArray"
+      :key="i.index"
+    ></div>
   </div>
 </template>
 
 <script>
-import { computed, toRefs } from '@vue/reactivity';
+import { computed, toRefs } from "@vue/reactivity";
 export default {
-props:{
-    size:String,
-    amount:Number
-},
-setup(props){
-    const {amount }=toRefs(props);
-    const amountArray = computed(()=>{
-        const arr=[];
-        for (let i=0;i<amount.value;i++){
-            arr.push(i);
-        }
-        return arr;
-    })
-    return {amountArray}
-}
+  props: {
+    size: String,
+    amount: Number,
+  },
+  setup(props) {
+    const { amount } = toRefs(props);
+    const amountArray = computed(() => {
+      const arr = [];
+      for (let i = 0; i < amount.value; i++) {
+        arr.push(i);
+      }
+      return arr;
+    });
+    return { amountArray };
+  },
 };
 </script>
 
