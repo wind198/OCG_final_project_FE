@@ -69,7 +69,7 @@ export default {
       } else {
         currentCategory.value = route.params.categoryID;
       }
-    });
+    },{immediate:true});
     watch(
       allCategory,
       (allCategory) => {

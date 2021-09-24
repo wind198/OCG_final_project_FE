@@ -29,7 +29,7 @@ export default {
 .collection {
   width: 100%;
   padding: 4% 2%;
-  max-height: 40vh;
+  max-height: 50vh;
   position: relative;
   img {
     max-width: 100%;
