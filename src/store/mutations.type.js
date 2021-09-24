@@ -5,6 +5,8 @@ export const SET_PAGE = "setPage";
 export const SET_MAIN_PAGE = "setMainPage";
 export const SET_COLLECTION_CATEGORIES = "setCollectionCategories";
 export const SET_CATEGORY_PRODUCTS = "setCategoryProducts";
+export const SET_CURRENT_PAGE = "setCurrentPage";
+
 export const CLEAR_PRODUCTS = "clearProducts";
 export const ADD_ITEM="addItem";
 export const REMOVE_ITEM="removeItem";

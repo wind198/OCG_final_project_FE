@@ -75,7 +75,9 @@
         <li id="sale" class="nav-main-item"><a href="#">sale</a></li>
       </ul>
     </nav>
-    <div class="loading-icon"></div>
+    <transition name="fade"
+      ><div class="loading-icon" v-if="showLoading"></div
+    ></transition>
   </header>
 </template>
 
@@ -93,6 +95,7 @@ export default {
   },
   setup() {
     const store = useStore();
+    const showLoading = computed(() => store.state.homeModule.loading);
     const mouseEnterShowSubList = (event) => {
       const currentNode = event.target;
       currentNode.childNodes[1].classList.remove("hiding");
@@ -102,12 +105,13 @@ export default {
       currentNode.childNodes[1].classList.add("hiding");
     };
     const showAnimation = computed(() => store.state.homeModule.showAnimation);
-    
+
     return {
       generatePageAlias,
       mouseEnterShowSubList,
       mouseLeaveHideSubList,
       showAnimation,
+      showLoading,
     };
   },
 };
@@ -253,10 +257,11 @@ header {
     }
   }
   .loading-icon {
-    --side:50px;
-    position: fixed;
-    top: 50%;left: 50%;
-    transform: translate(-50%,-50%);
+    --side: 50px;
+    position: fixed;z-index: 2000;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
     border: calc(var(--side) * 0.125) solid #f3f3f3;
     border-radius: 50%;
     border-top: calc(var(--side) * 0.125) solid #3498db;
@@ -283,6 +288,15 @@ header {
     100% {
       transform: rotate(360deg);
     }
+  }
+  .fade-enter-active,
+  .fade-leave-active {
+    transition: opacity 0.25s ease;
+  }
+
+  .fade-enter-from,
+  .fade-leave-to {
+    opacity: 0;
   }
 }
 </style>

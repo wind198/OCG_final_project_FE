@@ -17,7 +17,7 @@
    
     <div class="product-container">
       <product-comp
-        v-for="product in products"
+        v-for="product in productsToShow"
         :key="product.ID"
         :id="parseInt(product.ID)"
         :name="product.name"
@@ -26,7 +26,7 @@
         :image="product.Images[0].image"
       />
     </div>
-    <page-button-comp :amount="4" />
+    <page-button-comp :amount="numberOfPage" />
   </section>
 </template>
 
@@ -47,7 +47,13 @@ export default {
     const router = useRouter();
     const categoryID = computed(() => route.params.categoryID);
     const allCategory = computed(() => store.state.collectionModule.Categories);
+    const productPerPage=24;
+    const numberOfPage=computed(()=>Math.ceil(products.value.length/productPerPage));
+    const currentPage=computed(()=>store.state.collectionModule.currentPage);
     const products = ref([]);
+    const productsToShow = computed(()=>{
+      return products.value.slice((currentPage.value-1)*productPerPage,currentPage.value*productPerPage-1)
+    })
     const optionList = ref([]);
     const currentCategory = ref("");
     const onChangeCategory = (e) => {
@@ -67,26 +73,28 @@ export default {
     watch(
       allCategory,
       (allCategory) => {
-        const productToShow = [];
+        const allProduct = [];
         if (allCategory.length > 0) {
           allCategory.forEach((element) => {
             if (element.Products !== null) {
-              productToShow.push(...element.Products);
+              allProduct.push(...element.Products);
             }
           });
           optionList.value = [...allCategory];
         }
-        products.value = productToShow;
+        products.value = allProduct;
       },
       { deep: true }
     );
     return {
-      products,
+      productsToShow,numberOfPage,
       optionList,
       categoryID,
       allCategory,
       currentCategory,
       onChangeCategory,
+      //debug
+      products,currentPage,
     };
   },
 };

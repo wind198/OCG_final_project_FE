@@ -11,7 +11,7 @@ import { computed } from "@vue/reactivity";
 import { useStore } from "vuex";
 import { FETCH_ALL_PAGE } from "./store/actions.type";
 import { useRoute } from "vue-router";
-import { watch } from "@vue/runtime-core";
+import {   watch } from "@vue/runtime-core";
 export default {
   components: {
     HeaderComp,
@@ -29,7 +29,7 @@ export default {
 
     const pageList = computed(() => store.state.homeModule.pages);
 
-   
+  
 
     return {
       pageList,

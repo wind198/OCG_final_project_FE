@@ -117,9 +117,11 @@ import { SEND_ORDER, SET_ORDER_FULFILLED } from "../store/actions.type";
 import { useRoute, useRouter } from "vue-router";
 import {
   CLEAR_SEND_ORDER_RESULT,
+  HIDE_LOADING,
   SET_ERRORS,
   SET_FAILED_ORDER,
   SET_PAYMENT_FAILED,
+  SHOW_LOADING,
 } from "../store/mutations.type";
 import { STRIPE_PUBLISHABLE_KEY } from "../common/config";
 import { loadStripe } from "@stripe/stripe-js";
@@ -224,6 +226,7 @@ export default {
       const card = elements.create("card");
       card.mount("#card-element");
       const handleSubmitPayment = async () => {
+        store.commit(`homeModule/${SHOW_LOADING}`);
         console.log("sending payment", orderID.value);
         if (orderID.value === "") {
           store.commit(`cartModule/${SET_ERRORS}`, {
@@ -240,6 +243,8 @@ export default {
           });
 
         if (err) {
+          store.commit(`homeModule/${HIDE_LOADING}`);
+
           console.log(err);
           store.commit(`cartModule/${SET_ERRORS}`, err.response);
           store.commit(`cartModule/${SET_PAYMENT_FAILED}`);
@@ -263,7 +268,10 @@ export default {
           store.commit(`cartModule/${SET_ERRORS}`, {
             data: [stripeError.code, stripeError.message],
           });
+          store.commit(`homeModule/${HIDE_LOADING}`);
+
           store.commit(`cartModule/${SET_PAYMENT_FAILED}`);
+
           return;
         }
         console.log("paymentIntent", paymentIntent);
@@ -271,6 +279,7 @@ export default {
           `cartModule/${SET_ORDER_FULFILLED}`,
           orderID.value
         );
+        store.commit(`homeModule/${HIDE_LOADING}`);
 
         setTimeout(() => router.push("/payment-success"), 800);
       };

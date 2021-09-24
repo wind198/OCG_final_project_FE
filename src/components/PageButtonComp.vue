@@ -1,19 +1,35 @@
 <template>
-  <div class="page-button-container">
-    <button v-for="page in numberOfPage" :key="page.id" class="page-button">
-      {{ page.value }}
-    </button>
-  </div>
+  <transition name="buttonsfade">
+    <div class="page-button-container" v-if="showButtons">
+      <button
+        v-for="page in numberOfPage"
+        :key="page.id"
+        :value="page.id + `page`"
+        class="page-button"
+        @click="setPage"
+        :class="currentPage==page.id?'active':''"
+      >
+        {{ page.value }}
+      </button>
+    </div></transition
+  >
 </template>
 
 <script>
-import { computed, toRefs } from "vue";
+import { computed, onMounted, toRefs, ref, onUpdated, watch } from "vue";
+import { SET_CURRENT_PAGE } from "../store/mutations.type";
+import { useStore } from "vuex";
+import { useRoute } from "vue-router";
 export default {
   props: {
     amount: Number,
   },
   setup(props) {
+    const store = useStore();
     const { amount } = toRefs(props);
+    const showButtons = ref(false);
+    const route = useRoute();
+    watch(route, () => (showButtons.value = false));
     const numberOfPage = computed(() => {
       const arr = [];
       for (let i = 1; i <= amount.value; i++) {
@@ -21,19 +37,55 @@ export default {
       }
       return arr;
     });
-    return { numberOfPage };
+    const currentPage = computed(
+      () => store.state.collectionModule.currentPage
+    );
+    const setPage = (e) => {
+      store.commit(
+        `collectionModule/${SET_CURRENT_PAGE}`,
+        parseInt(e.target.value)
+      );
+    };
+    onMounted(() => {
+      setTimeout(() => {
+        showButtons.value = true;
+      }, 1000);
+    });
+    onUpdated(() => {
+      setTimeout(() => {
+        showButtons.value = true;
+      }, 1000);
+    });
+    return { numberOfPage, setPage, showButtons,currentPage };
   },
 };
 </script>
 
 <style lang="scss" scoped>
+.buttonsfade-enter-active,
+.buttonsfade-leave-active {
+  transition: opacity 0.25s ease;
+}
+
+.buttonsfade-enter-from,
+.buttonsfade-leave-to {
+  opacity: 0;
+}
 .page-button-container {
   display: block;
   width: fit-content;
   margin: auto;
+  padding: 1rem 1.5rem;
+  background-color: #fafafa4d;
+  border-radius: 10px;
+  position: fixed;
+
+  bottom: 5%;
+  left: 50%;
+  transform: translateX(-50%);
   button.page-button {
     font-size: 0.8rem;
-    --button-size: 40px;
+    --button-size: 30px;
     width: var(--button-size);
     height: var(--button-size);
     border-radius: calc(var(--button-size) * 0.1);
@@ -69,6 +121,11 @@ export default {
     + button {
       margin-left: 0.2rem;
     }
+  }
+  .page-button.active{
+    filter: brightness(1.5);
+    transform: scale(1.2);
+
   }
 }
 </style>

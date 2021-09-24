@@ -1,5 +1,5 @@
 import { FETCH_SINGLE_CATEGORY, FETCH_SINGLE_COLLECTION } from "../actions.type";
-import {CLEAR_PRODUCTS, SET_ERRORS, SET_COLLECTION_CATEGORIES, SET_CATEGORY_PRODUCTS } from "../mutations.type"
+import { SET_CURRENT_PAGE,CLEAR_PRODUCTS, SET_ERRORS, SET_COLLECTION_CATEGORIES, SET_CATEGORY_PRODUCTS } from "../mutations.type"
 import ApiServices from "../../common/api.services"
 import { productPerPage } from "../../common/contanst";
 const state = {
@@ -11,6 +11,7 @@ const state = {
     collection_name: "",
     page_id: null,
     Categories: [],
+    currentPage:1,
     errors: {}
 }
 
@@ -77,7 +78,10 @@ const mutations = {
     [SET_ERRORS](state, errors) {
         state.errors = errors;
     }
-
+    ,
+    [SET_CURRENT_PAGE](state, value) {
+        state.currentPage = value
+    }
 }
 export default {
     state, getters, actions, mutations,

@@ -7,7 +7,7 @@ const state = {
     collections: null,
     errors: null,
     showAnimation:false,
-    loading:true,
+    loading:false,
 
 }
 

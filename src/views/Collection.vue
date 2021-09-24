@@ -20,6 +20,7 @@ import { useStore } from "vuex";
 import { useRoute } from "vue-router";
 // import { useRouter } from "vue-router";
 import { computed, onMounted, watch, ref } from "vue";
+import { SHOW_LOADING, HIDE_LOADING } from "../store/mutations.type";
 import {
   FETCH_SINGLE_COLLECTION,
   FETCH_SINGLE_CATEGORY,
@@ -31,6 +32,7 @@ export default {
   },
   setup() {
     const store = useStore();
+
     const route = useRoute();
     const empty = ref(null);
     const allCategory = computed(() => store.state.collectionModule.Categories);
@@ -48,7 +50,9 @@ export default {
     };
 
     const fetchCollection = (id) =>
-      store.dispatch(`collectionModule/${FETCH_SINGLE_COLLECTION}`, { id:parseInt(id) });
+      store.dispatch(`collectionModule/${FETCH_SINGLE_COLLECTION}`, {
+        id: parseInt(id),
+      });
 
     const fetchSingleCategory = (id) => {
       return store.dispatch(`collectionModule/${FETCH_SINGLE_CATEGORY}`, {
@@ -57,18 +61,34 @@ export default {
     };
 
     const fetchAllCategories = (allCategoryArray) => {
+      store.commit(`homeModule/${SHOW_LOADING}`);
       const fetchWorkArray = allCategoryArray.map((c) => {
         fetchSingleCategory(c.ID);
       });
-      return Promise.all(fetchWorkArray);
+      return Promise.all(fetchWorkArray).then(() => {
+        console.log("helllo");
+        setTimeout(() => store.commit(`homeModule/${HIDE_LOADING}`), 400);
+      });
     };
     const watchCollectionAndCategories = (newParams, oldParams) => {
-      if (
-        parseInt(newParams.collectionID) !=
-        parseInt(oldParams.collectionID)
-      ) {
-        console.log("collectionID are different");
-        fetchCollection(newParams.collectionID).then(() => {
+      if (typeof newParams.collectionID !== "undefined") {
+        if (
+          parseInt(newParams.collectionID) != parseInt(oldParams.collectionID)
+        ) {
+          console.log("collectionID are different");
+          fetchCollection(newParams.collectionID).then(() => {
+            if (typeof newParams.categoryID === "undefined") {
+              fetchAllCategories(allCategory.value).then(() => {
+                checkEmpty(allCategory.value);
+              });
+            } else {
+              store.commit(`collectionModule/${CLEAR_PRODUCTS}`);
+              fetchSingleCategory(newParams.categoryID).then(() => {
+                checkEmpty(allCategory.value);
+              });
+            }
+          });
+        } else {
           if (typeof newParams.categoryID === "undefined") {
             fetchAllCategories(allCategory.value).then(() => {
               checkEmpty(allCategory.value);
@@ -79,28 +99,16 @@ export default {
               checkEmpty(allCategory.value);
             });
           }
-        });
-      } else {
-        if (typeof newParams.categoryID === "undefined") {
-          fetchAllCategories(allCategory.value).then(() => {
-            checkEmpty(allCategory.value);
-          });
-        } else {
-          store.commit(`collectionModule/${CLEAR_PRODUCTS}`);
-          fetchSingleCategory(newParams.categoryID).then(() => {
-            checkEmpty(allCategory.value);
-          });
         }
       }
     };
 
     watch(
-      ()=>route.params,
+      () => route.params,
       (newParams, oldParams) => {
-        console.log(newParams , oldParams );
+        console.log(newParams, oldParams);
         watchCollectionAndCategories(newParams, oldParams);
-      },
-      
+      }
     );
     onMounted(() => {
       console.log("onmounted");
