@@ -186,12 +186,17 @@ export default {
     );
     const sendOrder = () => {
       const order = {
-        email: email.value,
-        phone: phone.value,
-        customer_name: customer_name.value,
-        address: address.value,
+        email: email.value.trim(),
+        phone: phone.value.trim(),
+        customer_name: customer_name.value.trim(),
+        address: address.value.trim(),
         OrderDetails: [],
       };
+      const nameRegex = /^[a-zA-Z ,.'-]+[a-zA-Z ,.'-]$/;
+      const emailRegex =
+        /^(([^<>()[\]\\.,;:\s@"]+(\.[^<>()[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/;
+      const phoneRegex = /\d+/;
+      const addressRegex = /^[\w/.,]+(\s[\w/.,]+)*/;
       cartItems.value.forEach((i) => {
         console.log(i);
         order.OrderDetails.push({
@@ -199,12 +204,21 @@ export default {
           quantity: parseInt(i.quantity),
         });
       });
+
       const errorIfExist = [];
-      for (const key in order) {
-        if (order[key] === "") {
-          errorIfExist.push(`${key} field is required.`);
-        }
+      if (!nameRegex.test(order.customer_name)) {
+        errorIfExist.push("Invalid name");
       }
+      if (!emailRegex.test(order.email)) {
+        errorIfExist.push("Invalid email");
+      }
+      if (!addressRegex.test(order.address)) {
+        errorIfExist.push("Invalid address");
+      }
+      if (!phoneRegex.test(order.phone)) {
+        errorIfExist.push("Invalid phone number");
+      }
+
       let totalItemQuantity = 0;
       order.OrderDetails.forEach((i) => {
         totalItemQuantity += i.quantity;

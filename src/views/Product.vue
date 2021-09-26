@@ -44,6 +44,17 @@
       <div class="information">
         <h1>{{ name }}</h1>
         <p class="price">our price ${{ priceToShow }}</p>
+        <div class="warning-place-holder">
+          <div class="warning" v-show="showWarning">
+            <p
+              v-for="(i, index) in warning"
+              :key="index"
+              :class="['warning', addToCartSuccess ? 'success' : 'fail']"
+            >
+              {{ i }}
+            </p>
+          </div>
+        </div>
         <div class="add-to-cart">
           <div class="quantity-selection-container">
             <quantity-selector-comp />
@@ -51,10 +62,8 @@
           <div class="button-container">
             <a class="add-to-cart big-button" @click="addToCart">
               Add to cart
-              <span class="pick-variance" v-if="needToChooseVariance"
-                >Please pick a product variance</span
-              >
             </a>
+
             <router-link :to="{ path: `/cart` }" class="check-out big-button"
               >checkout now</router-link
             >
@@ -83,7 +92,13 @@ import { useRoute } from "vue-router";
 import { FETCH_SINGLE_PRODUCT } from "../store/actions.type";
 import VarianceCheckBoxComp from "../components/VarianceCheckBoxComp.vue";
 import { getMinPrice, getMaxPrice, checkIfEmptyObject } from "../common/helper";
-import { ADD_ITEM, TOGGLE_ANIMATION } from "../store/mutations.type";
+import {
+  ADD_ITEM,
+  SET_ERRORS,
+  SET_ADD_TO_CART_FAIL,
+  SET_ADD_TO_CART_SUCCESS,
+  TOGGLE_ANIMATION,
+} from "../store/mutations.type";
 export default {
   components: {
     QuantitySelectorComp,
@@ -122,7 +137,11 @@ export default {
       return rawName.split("-").slice(1).join(" ");
     });
     const showVarianceTable = computed(() => variances.value.length > 1);
-
+    const showWarning = computed(() => store.state.productModule.showWarning);
+    const warning = computed(() => store.state.productModule.warning);
+    const addToCartSuccess = computed(
+      () => store.state.productModule.addToCartSuccess
+    );
     const colorList = computed(() => {
       return getList("color");
     });
@@ -177,7 +196,8 @@ export default {
     const colorPicked = ref("");
     const sizePicked = ref("");
     const pickedVariance = ref({});
-    const needToChooseVariance = ref(null);
+    // const showWarning = ref(false);
+    // const warningText = ref("");
     const priceRange = ref([]);
     const allowedColor = ref([]);
     const allowedSize = ref([]);
@@ -218,6 +238,13 @@ export default {
     };
 
     const addToCart = () => {
+      if (checkIfEmptyObject(pickedVariance.value)) {
+        store.commit(`productModule/${SET_ERRORS}`, {
+          data: ["You must choose a specific variance"],
+        });
+        store.commit(`productModule/${SET_ADD_TO_CART_FAIL}`);
+        return;
+      }
       const sendingItem = {
         variance_id: pickedVariance.value.ID,
         name: name.value,
@@ -226,12 +253,34 @@ export default {
         quantity: quantity.value,
       };
       for (const key in sendingItem) {
-        if (typeof sendingItem[key] == "undefined") {
+        if (key!=='variance_id' & typeof sendingItem[key] == "undefined") {
+          store.commit(`productModule/${SET_ERRORS}`, {
+            data: ["Unexpected error occured. Please come back later."],
+          });
+          store.commit(`productModule/${SET_ADD_TO_CART_FAIL}`);
           return;
         }
       }
+      
+      if (quantity.value < 0) {
+        store.commit(`productModule/${SET_ERRORS}`, {
+          data: ["Quantity must greater than 0"],
+        });
+        store.commit(`productModule/${SET_ADD_TO_CART_FAIL}`);
+        return;
+      }
+      if (quantity.value > pickedVariance.value.inventory) {
+        store.commit(`productModule/${SET_ERRORS}`, {
+          data: [
+            `Sorry. your selected quantity exceeded our inventory (${pickedVariance.value.inventory})`,
+          ],
+        });
+        store.commit(`productModule/${SET_ADD_TO_CART_FAIL}`);
+        return;
+      }
       showAnimationAddToCart();
       store.commit(`cartModule/${ADD_ITEM}`, sendingItem);
+      store.commit(`productModule/${SET_ADD_TO_CART_SUCCESS}`);
     };
 
     watch([colorPicked, sizePicked], (newValue) => {
@@ -248,13 +297,13 @@ export default {
         }
       }
     });
-    watch(pickedVariance, (newPicked) => {
-      if (checkIfEmptyObject(newPicked)) {
-        needToChooseVariance.value = true;
-      } else {
-        needToChooseVariance.value = false;
-      }
-    });
+    // watch(pickedVariance, (newPicked) => {
+    //   if (checkIfEmptyObject(newPicked)) {
+    //     showWarning.value = true;
+    //   } else {
+    //     showWarning.value = false;
+    //   }
+    // });
 
     onMounted(() => {
       fetchProductInfo().then(() => {
@@ -271,9 +320,9 @@ export default {
         }
         if (variances.length <= 1) {
           pickedVariance.value = variances[0];
-          needToChooseVariance.value = false;
+          showWarning.value = false;
         } else {
-          needToChooseVariance.value = true;
+          showWarning.value = true;
         }
       });
     });
@@ -281,7 +330,9 @@ export default {
       colorPicked,
       sizePicked,
       pickedVariance,
-      needToChooseVariance,
+      showWarning,
+      warning,
+      addToCartSuccess,
       showVarianceTable,
       priceToShow,
       showAnimation,
@@ -328,7 +379,6 @@ main {
       text-transform: uppercase;
       position: relative;
       text-align: center;
-     
     }
   }
   .left-column {
@@ -388,7 +438,18 @@ main {
       text-transform: uppercase;
       font-weight: 600;
       letter-spacing: calc(var(--font-size) * 0.03);
-      margin-bottom: 30px;
+      margin-bottom: 10px;
+    }
+    div.warning-place-holder {
+      height: 60px;
+      width: 100%;
+      div.warning {
+        height: 100%;
+        width: 100%;
+        p.warning {
+          font-size: 0.9rem;
+        }
+      }
     }
     .add-to-cart {
       margin-bottom: 15px;
@@ -406,23 +467,6 @@ main {
         a.add-to-cart {
           &:hover span {
             display: inline-block;
-          }
-          span {
-            position: absolute;
-            bottom: 110%;
-            left: 50%;
-            transform: translateX(-50%);
-            width: max-content;
-            background-color: $color2;
-            color: $color1;
-            border: 1px solid #e4e1e1;
-            border-radius: 10px;
-            font-size: 0.8rem;
-            font-weight: normal;
-            letter-spacing: normal;
-            text-transform: capitalize;
-            padding: 0.5rem 1rem;
-            display: none;
           }
         }
       }

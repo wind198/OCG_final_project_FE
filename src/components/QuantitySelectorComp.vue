@@ -8,35 +8,41 @@
       type="text"
       name="quantity"
       class="quantity"
-      v-model="quantity"
+      :value="quantity"
+      @change="onSetQuantity"
     />
     <a class="up" @click="onInc"><i class="fas fa-plus"></i> </a>
   </div>
 </template>
 
 <script>
-import { ref } from "@vue/reactivity";
+import { computed  } from "@vue/reactivity";
 import { useStore } from "vuex";
-import { watch } from "@vue/runtime-core";
-import { SET_QUANTITY_SELECTED } from "../store/mutations.type";
+// import { watch } from "@vue/runtime-core";
+import { SET_QUANTITY } from "../store/mutations.type";
 export default {
   setup() {
     const store = useStore();
-    const quantity = ref(1);
+    const quantity = computed(() => store.state.productModule.quantitySelected);
     const onInc = () => {
-      quantity.value++;
+      store.commit(`productModule/${SET_QUANTITY}`, quantity.value + 1);
     };
     const onDec = () => {
-      if (quantity.value == 1) {
+      if (quantity.value < 1) {
         return;
       }
-      quantity.value--;
+      store.commit(`productModule/${SET_QUANTITY}`, quantity.value - 1);
     };
 
-    watch(quantity, (value) => {
-      store.commit(`productModule/${SET_QUANTITY_SELECTED}`, value);
-    });
-    return { quantity, onInc, onDec };
+    const onSetQuantity=(e)=>{
+      store.commit(`productModule/${SET_QUANTITY}`,parseInt(e.target.value));
+    }
+
+    // watch(quantity, (value) => {
+    //   if (value < 1) return;
+    //   store.commit(`productModule/${SET_QUANTITY_SELECTED_SUCCESS}`, value);
+    // });
+    return { quantity, onInc, onDec,onSetQuantity };
   },
 };
 </script>

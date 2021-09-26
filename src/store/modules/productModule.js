@@ -1,5 +1,5 @@
 import { FETCH_SINGLE_PRODUCT } from "../actions.type";
-import { SET_ERRORS, SET_PRODUCT_PROPS, SET_QUANTITY_SELECTED } from "../mutations.type"
+import {SET_QUANTITY, CLEAR_WARNING_STATE, SET_ERRORS, SET_PRODUCT_PROPS, SET_ADD_TO_CART_FAIL, SET_ADD_TO_CART_SUCCESS } from "../mutations.type"
 import apiServices from "../../common/api.services"
 const state = {
     ID: null,
@@ -7,10 +7,12 @@ const state = {
     description: "",
     image: "",
     ProductVariances: [],
-
     categoryName: "",
     errors: null,
     quantitySelected: 1,
+    warning: "",
+    showWarning: null,
+    addToCartSuccess: null
 
 }
 
@@ -39,6 +41,10 @@ const actions = {
 }
 
 const mutations = {
+    [CLEAR_WARNING_STATE](state) {
+        state.warning = "";
+        state.showWarning = false;
+    },
     [SET_PRODUCT_PROPS](state, product) {
 
         for (const key in product) {
@@ -50,8 +56,22 @@ const mutations = {
         state.categoryName = product.Categories[0].category_name;
 
     },
-    [SET_QUANTITY_SELECTED](state, quantitySelected) {
-        state.quantitySelected = quantitySelected;
+
+    [SET_QUANTITY](state, quantity) {
+        state.quantitySelected = quantity
+    },
+    [SET_ADD_TO_CART_SUCCESS](state ) {
+        
+        state.warning = ["product added successfully",];
+        state.addToCartSuccess = null;
+        state.addToCartSuccess = true;
+        state.showWarning = true;
+    },
+    [SET_ADD_TO_CART_FAIL](state) {
+        state.warning = state.errors.data;
+        state.addToCartSuccess = null;
+        state.addToCartSuccess = false;
+        state.showWarning = true;
     },
     [SET_ERRORS](state, errors) {
         state.errors = errors;

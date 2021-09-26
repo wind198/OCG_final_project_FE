@@ -38,22 +38,21 @@
         id="limit"
         min="1"
         max="20"
-        v-model="maxBarShownOnnChart"
+        @change="alterMaxBar"
+        :value="maxBarShownOnnChart"
       />
     </div>
     <div class="chart-container">
-      <div class="best-selling" id="plot-container" v-show="showChartElement">
-        <span
-          class="axis-text"
-          v-for="(i, index) in bestSells"
-          :key="i.product_id"
-          :style="{
-            left: (index + 0.5) * distanceBetweenBar + padding + 'px',
-            top: fieldHeight - padding + 'px',
-            width: distanceBetweenBar * 0.8 + 'px',
-          }"
-          >{{ i.product_name }}
-        </span>
+      <div
+        class="best-selling"
+        id="plot-container"
+        v-show="showChartElement"
+      ></div>
+      <div class="legend" v-show="showChartElement">
+        <div v-for="item in bestSellsWithRandomColor" :key="item.product_id">
+          <span class="color" :style="{ backgroundColor: item.color }"> </span>
+          <span class="name">{{ item.product_name }} </span>
+        </div>
       </div>
     </div>
 
@@ -61,7 +60,7 @@
       <h2 class="formal-text">Order summary</h2>
       <p v-for="(value, index) in saleData" :key="index">
         <span class="item">{{ index }}:</span>
-        <span class="detail">{{value}} </span>
+        <span class="detail">{{ value }} </span>
       </p>
     </div>
   </main>
@@ -75,37 +74,37 @@ import {
   RESET_DATA,
   SET_ERRORS,
   SET_GET_REPORT_FAIL,
+  SET_MAX_BAR_NUMBER,
 } from "../store/mutations.type";
 // import { GET_REPORT_DATA } from "../store/actions.type";
 import * as d3 from "d3";
-import { calculateXdistanceBetweenBar } from "../common/helper";
+
 export default {
   setup() {
     const store = useStore();
-    const maxBarShownOnnChart = ref(3);
-    const fieldWidth = 750;
-    const fieldHeight = 320;
-    const barWidth = 20;
-    const padding = 60;
+    const maxBarShownOnnChart = computed(
+      () => store.state.analysisModule.maxBarShownOnnChart
+    );
+    const fieldWidth = computed(() => store.state.analysisModule.fieldWidth);
+    const fieldHeight = computed(() => store.state.analysisModule.fieldHeight);
+    const barWidth = computed(() => store.state.analysisModule.barWidth);
+    const padding = computed(() => store.state.analysisModule.padding);
+
     const saleData = computed(() => {
-      const objectFromStore=store.state.analysisModule.saleData;
-      const outputObject={};
+      const objectFromStore = store.state.analysisModule.saleData;
+      const outputObject = {};
       for (const key in objectFromStore) {
-        outputObject[key.split("_").join(" ")]=objectFromStore[key];
+        outputObject[key.split("_").join(" ")] = objectFromStore[key];
       }
       return outputObject;
     });
-    const bestSells = computed(() =>
-      store.state.analysisModule.bestSells.slice(0, maxBarShownOnnChart.value)
+    const bestSellsWithRandomColor = computed(
+      () => store.getters[`analysisModule/bestSellsWithColor`]
     );
 
-    const distanceBetweenBar = computed(() => {
-      const numberOfBar = store.state.analysisModule.bestSells.slice(
-        0,
-        maxBarShownOnnChart.value
-      ).length;
-      return calculateXdistanceBetweenBar(fieldWidth, padding, numberOfBar);
-    });
+    const distanceBetweenBar = computed(
+      () => store.getters[`analysisModule/distanceBetweenBar`]
+    );
     const convertToISOformat = (timeValue) => {
       const time = new Date(timeValue);
       const offset = time.getTimezoneOffset();
@@ -142,6 +141,8 @@ export default {
     );
 
     // const convertToLocaleString = (time)=>time.toLocaleString('en-US', { timeZone: 'America/New_York' });
+    const alterMaxBar = (e) =>
+      store.commit(`analysisModule/${SET_MAX_BAR_NUMBER}`, e.target.value);
 
     const getReport = () => {
       showChartElement.value = false;
@@ -175,60 +176,65 @@ export default {
           start: startTimeInDesiredFormat.value,
           end: endTimeInDesiredFormat.value,
         })
-        .then((r) => {
-          d3.selectAll("svg").remove();
-          const bestSellsToShow = r.bestSellsData.slice(
-            0,
-            maxBarShownOnnChart.value
-          );
-          const yScale = d3
-            .scaleLinear()
-            .domain([0, d3.max(bestSellsToShow, (d) => d.amount_sold)])
-            .range([fieldHeight - padding, padding]);
-          const yAxis = d3.axisLeft(yScale);
-          const plotField = d3
-            .select(".best-selling")
-            .append("svg")
-            .attr("width", fieldWidth)
-            .attr("height", fieldHeight)
-            .attr("class", "plot-field");
-          plotField
-            .selectAll("rect")
-            .data(bestSellsToShow)
-            .enter()
-            .append("rect")
-            .attr("class", "bar")
-            .attr("height", (d) => yScale(d.amount_sold))
-            .attr("width", barWidth)
-            .attr(
-              "x",
-              (d, i) =>
-                padding -
-                barWidth / 2 +
-                (i + 0.5) *
-                  calculateXdistanceBetweenBar(
-                    fieldWidth,
-                    padding,
-                    bestSellsToShow.length
-                  )
-            )
-            .attr("y", (d) => fieldHeight - yScale(d.amount_sold) - padding);
-
-          plotField
-            .append("g")
-            .attr("transform", `translate(${padding},0)`)
-            .attr("class", "axis")
-            .call(yAxis);
-          plotField
-            .append("line")
-            .attr("x1", padding)
-            .attr("x2", fieldWidth - padding)
-            .attr("y1", fieldHeight - padding)
-            .attr("y2", fieldHeight - padding)
-            .attr("stroke", "#02195f");
-        })
         .then(() => {
-          showChartElement.value = true;
+          const data = bestSellsWithRandomColor.value;
+          const dis = distanceBetweenBar.value;
+          const w = fieldWidth.value;
+          const h = fieldHeight.value;
+          const p = padding.value;
+          const barW = barWidth.value;
+          console.log(data, dis, w, h, p, barW);
+          if (data.length > 0) {
+            console.log("hello");
+            d3.selectAll("svg").remove();
+            // const bestSells = r.bestSellsData.slice(0, maxBarShownOnnChart.value);
+            const yScale = d3
+              .scaleLinear()
+              .domain([0, d3.max(data, (d) => d.amount_sold)])
+              .range([h - p, p]);
+            const yAxis = d3.axisLeft(yScale);
+            const plotField = d3
+              .select(".best-selling")
+              .append("svg")
+              .attr("width", w)
+              .attr("height", h)
+              .attr("class", "plot-field");
+            plotField
+              .selectAll("rect")
+              .data(data)
+              .enter()
+              .append("rect")
+              .attr("class", "bar")
+              .style("fill", (d) => d.color)
+              .attr("height", (d) => h - p - yScale(d.amount_sold))
+              .attr("width", barW)
+              .attr("x", (d, i) => p - barW / 2 + (i + 0.5) * dis)
+              .attr("y", (d) => yScale(d.amount_sold))
+              .append("title")
+              .text((d) => d.product_name);
+            plotField
+              .selectAll("text")
+              .data(data)
+              .enter()
+              .append("text")
+              .text((d) => d.amount_sold)
+              .attr("class", "title-text")
+              .attr("x", (d, i) => p - barW / 2 + (i + 0.5) * dis)
+              .attr("y", (d) => yScale(d.amount_sold) - 2);
+            plotField
+              .append("g")
+              .attr("transform", `translate(${p},0)`)
+              .attr("class", "axis")
+              .call(yAxis);
+            plotField
+              .append("line")
+              .attr("x1", p)
+              .attr("x2", w - p)
+              .attr("y1", h - p)
+              .attr("y2", h - p)
+              .attr("stroke", "#02195f");
+            showChartElement.value = true;
+          }
         });
     };
     watch(startTime, (value) => {
@@ -260,11 +266,12 @@ export default {
       showChartElement,
       maxBarShownOnnChart,
       saleData,
-      bestSells,
+      bestSellsWithRandomColor,
       fieldWidth,
       padding,
       fieldHeight,
       distanceBetweenBar,
+      alterMaxBar,
       //for debug
       startTimeInDesiredFormat,
       endTimeInDesiredFormat,
@@ -286,8 +293,9 @@ main {
   .chart-container {
     width: 750px;
     height: 320px;
-    margin: 0 auto 40px;
+    margin: 0 auto 40px auto;
     background: $plotFieldColor;
+    position: relative;
   }
   .date-time {
     margin: 0 0 15px 0;
@@ -355,7 +363,31 @@ main {
       font-size: 0.8rem;
     }
   }
-
+  .legend {
+    width: max-content;
+    right: 5px;
+    top: 5px;
+    position: absolute;
+    max-height: 60%;
+    overflow: auto;
+    padding: 0.5rem;
+    border: 1px solid rgb(212, 212, 212);
+    border-radius: 10px;
+    div {
+      span.color {
+        --colorBox-side: 10px;
+        display: inline-block;
+        width: var(--colorBox-side);
+        height: var(--colorBox-side);
+        margin-right: 0.5rem;
+      }
+      span.name {
+        font-size: 0.8rem;
+        display: inline-block;
+        color: $color1;
+      }
+    }
+  }
   .best-selling {
     position: relative;
     width: 100%; // background-color: blue;

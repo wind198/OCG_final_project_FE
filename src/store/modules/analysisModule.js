@@ -1,26 +1,66 @@
 import { GET_REPORT_DATA } from "../actions.type";
-import { SET_ERRORS,RESET_DATA, SET_GET_REPORT_FAIL,SET_GET_REPORT_SUCCESS} from "../mutations.type"
+import { SET_MAX_BAR_NUMBER,SET_ERRORS, RESET_DATA, SET_GET_REPORT_FAIL, SET_GET_REPORT_SUCCESS } from "../mutations.type"
 import ApiServices from "../../common/api.services";
+import {
+    calculateXdistanceBetweenBar,
+    randomColorCodeGenerator,
+} from "../../common/helper";
 const state = {
+    fieldWidth: 750,
+    fieldHeight: 320,
+    barWidth: 20,
+    padding: 60,
+    maxBarShownOnnChart: 20,
     saleData: {},
     bestSells: [],
     getReportSuccess: null,
     resultMessage: "",
     errors: {}
 }
-const getters = {};
+const getters = {
+    bestSellsWithColor: (state) => {
+        const bestSells = state.bestSells;
+        const maxBarShownOnnChart = state.maxBarShownOnnChart;
+      
+        if (bestSells.length>0) {
+            const bestSellsWithRandomColor = [];
+            bestSells.slice(0, maxBarShownOnnChart).forEach((e) => {
+                bestSellsWithRandomColor.push({
+                    ...e,
+                    color: randomColorCodeGenerator(200, 20),
+                });
+            });
+            return bestSellsWithRandomColor;
+        } else return [];
+    },
+    distanceBetweenBar: (state) => {
+        const bestSells = state.bestSells;
+        const fieldWidth = state.fieldWidth;
+        const padding = state.padding;
+        const maxBarShownOnnChart = state.maxBarShownOnnChart;
+        if (bestSells.length>0) {
+            const numberOfBar = bestSells.slice(
+                0,
+                maxBarShownOnnChart
+            ).length;
+            return calculateXdistanceBetweenBar(fieldWidth, padding, numberOfBar);
+        } else {
+            return null;
+        }
+    }
+
+
+
+};
 const actions = {
     async [GET_REPORT_DATA]({ commit }, payload) {
 
 
         try {
-            console.log("GETTING REPORT DATA",);
             const saleResponse = await ApiServices.query(`/orders/${payload.start}/${payload.end}/analysis`);
-            console.log("report received", saleResponse.data);
             const bestSellsResponse = await ApiServices.query(`/products/${payload.start}/${payload.end}/bestsellings`);
-            console.log("bestsell received", bestSellsResponse.data);
-            commit(SET_GET_REPORT_SUCCESS, { saleData:saleResponse.data, bestSellsData:bestSellsResponse.data });
-            return  { saleData:saleResponse.data, bestSellsData:bestSellsResponse.data }
+            commit(SET_GET_REPORT_SUCCESS, { saleData: saleResponse.data, bestSellsData: bestSellsResponse.data });
+            return { saleData: saleResponse.data, bestSellsData: bestSellsResponse.data }
         }
         catch (err) {
             commit(SET_ERRORS, err.response);
@@ -33,6 +73,10 @@ const mutations = {
     [SET_ERRORS](state, errors) {
         state.errors = errors;
     },
+    [SET_MAX_BAR_NUMBER](state, num) {
+        state.maxBarShownOnnChart = num;
+    },
+
     [SET_GET_REPORT_SUCCESS](state, payload) {
         state.saleData = payload.saleData;
         state.bestSells = payload.bestSellsData;
@@ -43,21 +87,18 @@ const mutations = {
             state.resultMessage = [...state.resultMessage, "You have no orders."]
         }
         if (state.bestSells === null) {
+            state.bestSells = []
             state.resultMessage = [...state.resultMessage, "You have no sales."]
         }
     },
     [SET_GET_REPORT_FAIL](state) {
-        console.log("setting fail");
         state.getReportSuccess = false;
-        console.log("after fail,",state.getReportSuccess);
         state.resultMessage = state.errors.data;
     },
     [RESET_DATA](state) {
-        console.log("reseting");
         state.saleData = {};
         state.bestSells = [];
         state.getReportSuccess = null;
-        console.log("after reset,",state.getReportSuccess);
         state.resultMessage = "";
         state.errors = {};
     }

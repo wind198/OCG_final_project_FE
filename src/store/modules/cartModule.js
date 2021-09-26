@@ -49,7 +49,8 @@ const actions = {
             commit(SET_CONFIRMED_ORDER, response.data.ID)
         }
         catch (err) {
-            commit(SET_ERRORS, err.response);
+            console.log(err.response);
+            commit(SET_ERRORS, {...err.response,data:[err.response.data,]});
             commit(SET_FAILED_ORDER);
         }
     },

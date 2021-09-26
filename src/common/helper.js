@@ -72,4 +72,13 @@ export const checkIfEmptyObject = (obj) => {
 //help svg shape drawing
 export const calculateXdistanceBetweenBar = (fieldWidth, padding, numberOfBar) => {
   return (fieldWidth - 2 * padding) / numberOfBar;
-} 
+}
+
+export const randomColorCodeGenerator = (max,min) => {
+  const colorCode = [];
+  for (let i = 0; i < 3; i++) {
+   const index = Math.floor(Math.random() * (max-min)+min)
+    colorCode.push(index);
+  }
+  return `rgb(${colorCode.join(", ")})`;
+}

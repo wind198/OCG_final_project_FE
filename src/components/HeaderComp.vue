@@ -187,6 +187,7 @@ header {
             width: auto;
           }
         }
+        
 
         .hide-animation {
           display: none;
@@ -215,6 +216,11 @@ header {
           }
         }
       }
+      div.search{
+          img{
+            filter:brightness(3);
+          }
+        }
     }
   }
   nav {
