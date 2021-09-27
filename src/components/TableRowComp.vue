@@ -1,21 +1,22 @@
 <template>
-  <tr @click.stop="setCurrentOrderID" :id="data.ID">
-    <td v-for="(value, name) in rowData" :key="name">{{ value }}</td>
+  <tr  :id="data.ID">
+    <td v-for="(value, name) in rowData" :key="name" :class="name">
+      {{ value }}
+    </td>
+     
   </tr>
 </template>
 
 <script>
 import { computed, toRefs } from "@vue/reactivity";
-import { useStore } from "vuex";
-import { SET_CURRENT_ORDER_ID } from "../store/mutations.type";
+// import { useStore } from "vuex";
 export default {
   props: {
     data: Object,
   },
   setup(props) {
     const { data } = toRefs(props);
-    const store = useStore();
-    console.log(data.value);
+    // const store = useStore();
     const rowData = computed(() => {
       const ouput1 = { ...data.value };
       delete ouput1.OrderDetails;
@@ -31,20 +32,16 @@ export default {
             ouput1[key] = new Date(ouput1[key]).toLocaleString();
           }
         }
-        if(key=='TotalPrice'){
-            ouput1[key]="$ "+ouput1[key];
+        if (key == "TotalPrice") {
+          ouput1[key] = "$ " + ouput1[key];
         }
-    
       }
 
       return ouput1;
     });
-    const setCurrentOrderID = (e) => {
-      const id = e.target.parentNode.id;
-      store.commit(`orderManagementModule/${SET_CURRENT_ORDER_ID}`, id);
-    };
-
-    return { rowData, setCurrentOrderID };
+ 
+     
+    return { rowData,  };
   },
 };
 </script>

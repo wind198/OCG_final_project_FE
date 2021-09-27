@@ -2,9 +2,19 @@
   <main class="analysis">
     <h1 class="formal-text">Sale analysis</h1>
     <div class="toolbar">
-      <div class="button-container">
+      <div class="button-container" @click="setShowOrderManagement">
         <button class="order-management">
           <i class="fas fa-clipboard-list"></i>
+        </button>
+      </div>
+      <div class="button-container">
+        <button class="">
+          <i class="fas fa-tools"></i>
+        </button>
+      </div>
+      <div class="button-container">
+        <button class="">
+          <i class="fas fa-cog"></i>
         </button>
       </div>
     </div>
@@ -70,11 +80,14 @@
         <span class="detail">{{ value }} </span>
       </p>
     </div>
-    <router-view />
+    <transition name="order-management"
+      ><order-management-comp v-if="showOrderManagement"
+    /></transition>
   </main>
 </template>
 
 <script>
+import OrderManagementComp from "../components/OrderManagementComp.vue";
 import { computed, onMounted, ref, watch } from "@vue/runtime-core";
 import { useStore } from "vuex";
 import { GET_REPORT_DATA } from "../store/actions.type";
@@ -83,11 +96,15 @@ import {
   SET_STATUS,
   SET_GET_REPORT_FAIL,
   SET_MAX_BAR_NUMBER,
+  SHOW_ORDER_MANAGEMENT,
 } from "../store/mutations.type";
 // import { GET_REPORT_DATA } from "../store/actions.type";
 import * as d3 from "d3";
 import { camelCaseToSpace, convertToISOformat } from "../common/helper";
 export default {
+  components: {
+    OrderManagementComp,
+  },
   setup() {
     const store = useStore();
     const maxBarShownOnChart = computed(
@@ -120,6 +137,9 @@ export default {
     const startTimeInDesiredFormat = ref("");
     const endTimeInDesiredFormat = ref("");
     const showResultMessage = ref(null);
+    const showOrderManagement = computed(
+      () => store.state.analysisModule.showOrderManagement
+    );
     //computed
     const resultMessage = computed(
       () => store.state.analysisModule.resultMessage
@@ -202,6 +222,8 @@ export default {
         showChartElement.value = true;
       }
     };
+    const setShowOrderManagement = () =>
+      store.commit(`analysisModule/${SHOW_ORDER_MANAGEMENT}`);
     const getReport = () => {
       showChartElement.value = false;
       showResultMessage.value = false;
@@ -270,6 +292,8 @@ export default {
       maxBarShownOnChart,
       orderData,
       bestSellsWithRandomColor,
+      showOrderManagement,
+      setShowOrderManagement,
       fieldWidth,
       padding,
       fieldHeight,
@@ -284,6 +308,18 @@ export default {
 };
 </script>
 <style lang="scss" scoped>
+.order-management-enter-active {
+  transition: all 0.25s ease-out;
+}
+
+.order-management-leave-active {
+  transition: all 0.25s cubic-bezier(1, 0.5, 0.8, 1);
+}
+
+.order-management-enter-from,
+.order-management-leave-to {
+  opacity: 0;
+}
 main {
   margin-bottom: 60px;
   padding: 1vh 4vw;
@@ -291,9 +327,14 @@ main {
     height: 50vh;
     width: fit-content;
     position: fixed;
-    left: 0%;
-    top: 50%;
-    transform: translateY(-50%);
+    left: 0;
+    top: 60%;
+    transition: all 0.2s ease-in;
+    transform-origin: 0% 0%;
+    transform: translateY(-50%) scale(0.5);
+    &:hover {
+      transform: translateY(-50%) scale(1);
+    }
     padding: 1rem 0.6rem;
     /* Permalink - use to edit and share this gradient: https://colorzilla.com/gradient-editor/#4c4c4c+0,595959+12,666666+25,474747+39,2c2c2c+50,000000+51,111111+60,2b2b2b+76,1c1c1c+91,131313+100;Black+Gloss+%231 */
     background: #4c4c4c; /* Old browsers */
@@ -341,6 +382,7 @@ main {
     border-radius: 10px;
     margin-left: 5px;
     .button-container {
+      margin-bottom: 6px;
       --button-size: 30px;
       height: var(--button-size);
       width: var(--button-size);
@@ -395,6 +437,11 @@ main {
         width: 100%;
         height: 100%;
         color: white;
+        outline: none;
+        &:hover {
+          position: relative;
+          transform: scale(1.1);
+        }
       }
     }
   }

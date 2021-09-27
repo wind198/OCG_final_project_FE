@@ -1,5 +1,5 @@
 import { GET_REPORT_DATA, } from "../actions.type";
-import { SET_MAX_BAR_NUMBER, SET_STATUS, RESET_DATA, SET_GET_REPORT_FAIL, SET_GET_REPORT_SUCCESS, } from "../mutations.type"
+import {HIDE_ORDER_MANAGEMENT,SHOW_ORDER_MANAGEMENT, SET_MAX_BAR_NUMBER, SET_STATUS, RESET_DATA, SET_GET_REPORT_FAIL, SET_GET_REPORT_SUCCESS, } from "../mutations.type"
 import ApiServices from "../../common/api.services";
 import {
     calculateXdistanceBetweenBar,
@@ -21,7 +21,8 @@ const state = {
     resultMessage: "",
     status: {},
 
-
+    //show hide order Management
+    showOrderManagement:false,
 
 
 }
@@ -114,6 +115,12 @@ const mutations = {
         state.resultMessage = "";
         state.status = {};
     },
+    [SHOW_ORDER_MANAGEMENT](state){
+        state.showOrderManagement=true;
+    },
+    [HIDE_ORDER_MANAGEMENT](state){
+        state.showOrderManagement=false;
+    }
 
 
 }

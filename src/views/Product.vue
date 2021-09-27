@@ -98,6 +98,8 @@ import {
   SET_ADD_TO_CART_FAIL,
   SET_ADD_TO_CART_SUCCESS,
   TOGGLE_ANIMATION,
+  SET_QUANTITY,
+  CLEAR_WARNING_STATE,
 } from "../store/mutations.type";
 export default {
   components: {
@@ -306,6 +308,8 @@ export default {
     // });
 
     onMounted(() => {
+      store.commit(`productModule/${SET_QUANTITY}`,1);
+      store.commit(`productModule/${CLEAR_WARNING_STATE}`,1);
       fetchProductInfo().then(() => {
         allowedColor.value = getList("Color");
         allowedSize.value = getList("Size");

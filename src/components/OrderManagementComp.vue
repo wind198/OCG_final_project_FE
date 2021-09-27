@@ -50,6 +50,7 @@
               v-for="od in orderManagementData"
               :key="od.OrderID"
               :data="od"
+              @click="setCurrentOrderID"
             />
           </tbody>
         </table>
@@ -88,7 +89,6 @@
 <script>
 import { convertToISOformat } from "../common/helper";
 import { ref, computed, onMounted, watch } from "vue";
-import { useStore } from "vuex";
 import { GET_ORDER_MANAGEMENT_DATA } from "../store/actions.type";
 import {
   CLEAR_CURRENT_ORDER_ID,
@@ -98,16 +98,18 @@ import {
   SET_SORT_FIELD,
   TOGGLE_SORT_DIRECTION,
   HIDE_ORDER_DETAILS,
+  HIDE_ORDER_MANAGEMENT,
 } from "../store/mutations.type";
-import TableRowComp from "../components/TableRowComp.vue";
-import { useRouter } from "vue-router";
+import { SET_CURRENT_ORDER_ID } from "../store/mutations.type";
+
+import TableRowComp from "./TableRowComp.vue";
+import { useStore } from 'vuex';
 export default {
   components: { TableRowComp },
   setup() {
-    const store = useStore();
+    const store=useStore();
     const startTime = ref("");
     const endTime = ref("");
-    const router = useRouter();
     const showResultMesage = ref(false);
     const startTimeInDesiredFormat = computed(() =>
       convertToISOformat(startTime.value)
@@ -193,9 +195,13 @@ export default {
     const closeOrderDetails = () => {
       store.commit(`orderManagementModule/${HIDE_ORDER_DETAILS}`);
     };
+       const setCurrentOrderID = (e) => {
+      const id = e.target.parentNode.id;
+      store.commit(`orderManagementModule/${SET_CURRENT_ORDER_ID}`, id);
+    };
 
     const exit = () => {
-      router.push({ path: `/analysis` });
+      store.commit(`analysisModule/${HIDE_ORDER_MANAGEMENT}`);
     };
 
     watch(
@@ -224,7 +230,8 @@ export default {
       orderManagementDataHeadings,
       orderManagementData,
       clearCurrentOrderID,
-      closeOrderDetails,exit,
+      closeOrderDetails,setCurrentOrderID,
+      exit,
       setSortField,
       resultMessage,
       currentOrderDetails,
@@ -271,10 +278,12 @@ export default {
       top: 15px;
       right: 15px;
       font-size: 200%;
-      color:red;
-      display: block;width: 30px;height: 30px;
+      color: red;
+      display: block;
+      width: 30px;
+      height: 30px;
       line-height: 30px;
-      padding:0;
+      padding: 0;
       outline: none;
     }
     .row1 {

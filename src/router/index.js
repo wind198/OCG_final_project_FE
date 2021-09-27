@@ -61,13 +61,7 @@ const routes = [
     path: '/analysis',
     name: 'analysis',
     component: () => import('../views/Analysis.vue'),
-    children: [
-      {
-        path: 'order-management',
-        name: 'orderManagement',
-        component: () => import('../views/OrderManagement.vue')
-      },
-    ]
+
   },
   {
 
