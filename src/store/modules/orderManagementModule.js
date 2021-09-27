@@ -1,5 +1,5 @@
 import { GET_ORDER_MANAGEMENT_DATA } from "../actions.type";
-import { HIDE_ORDER_DETAILS,SET_SORT_FIELD, TOGGLE_SORT_DIRECTION, CLEAR_STATUS, SET_ORDER_MANAGEMENT_DATA_SUCCESS, SET_ORDER_MANAGEMENT_DATA_FAIL, SET_STATUS, SET_CURRENT_ORDER_ID, CLEAR_CURRENT_ORDER_ID } from "../mutations.type";
+import { HIDE_ORDER_DETAILS, SET_SORT_FIELD, TOGGLE_SORT_DIRECTION, CLEAR_STATUS, SET_ORDER_MANAGEMENT_DATA_SUCCESS, SET_ORDER_MANAGEMENT_DATA_FAIL, SET_STATUS, SET_CURRENT_ORDER_ID, CLEAR_CURRENT_ORDER_ID } from "../mutations.type";
 import ApiServices from "../../common/api.services";
 const state = {
     //chart data
@@ -21,17 +21,18 @@ const getters = {
         const sortField = state.sortField;
         const sortDirection = state.sortDirection;
         if (state.orderManagementData.length > 0) {
-            let orderManagementData = state.orderManagementData;
-            orderManagementData=orderManagementData.map((e)=>{
-                if(e.FulfilledAt=="0001-01-01T00:00:00Z"){
-                    e.FulfilledAt="No info";
-                }
-                return e;
-            })
+            // let orderManagementData = state.orderManagementData;
+            // orderManagementData=orderManagementData.map((e)=>{
+            //     if(e.FulfilledAt=="0001-01-01T00:00:00Z"){
+            //         e.FulfilledAt="No info";
+            //     }
+            //     return e;
+            // })
 
-            if (Object.keys(orderManagementData[0]).indexOf(sortField) > -1) {
+            const orderManagementDataToShow = [...state.orderManagementData];
+            console.log(orderManagementDataToShow);
+            if (Object.keys(orderManagementDataToShow[0]).indexOf(sortField) > -1) {
                 console.log("sorting folliing ", sortField);
-                const orderManagementDataToShow = [...orderManagementData];
                 orderManagementDataToShow.sort((a, b) => {
                     let x = a[sortField];
                     let y = b[sortField];
@@ -40,7 +41,7 @@ const getters = {
                     if (sortField == 'ID' || sortField == 'TotalPrice') {
                         comparison = x > y ? -1 * sortDirection : 1 * sortDirection
                     } else if (sortField == 'CreatedAt' || sortField == 'UpdatedAt' || sortField == 'DeletedAt' || sortField == 'FulfilledAt') {
-                        console.log(new Date(x).getTime(), new Date(y).getTime());
+                        console.log(x, y, new Date(x).getTime(), new Date(y).getTime());
                         comparison = (new Date(x)).getTime() > (new Date(y)).getTime() ? -1 * sortDirection : 1 * sortDirection
                     } else if (sortField == 'ReportSend' || sortField == 'Status') {
                         comparison = x > y ? -1 * sortDirection : 1 * sortDirection
@@ -48,10 +49,15 @@ const getters = {
                     console.log(comparison);
                     return comparison;
                 })
-                return orderManagementDataToShow;
             }
-            return  orderManagementData;
-        }
+            return orderManagementDataToShow
+                // .map((e) => {
+                //     if (e.FulfilledAt == "0001-01-01T00:00:00Z") {
+                //         e.FulfilledAt = "No info";
+                //     }
+                //     return e;
+                // })
+        } return [];
     },
 
     orderManagementDataHeadings: (state) => {
@@ -160,8 +166,8 @@ const mutations = {
         state.sortDirection = -state.sortDirection;
 
     },
-    [HIDE_ORDER_DETAILS](state){
-        state.showOrderDetail=false;
+    [HIDE_ORDER_DETAILS](state) {
+        state.showOrderDetail = false;
     }
 
 }

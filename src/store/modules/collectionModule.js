@@ -4,14 +4,13 @@ import ApiServices from "../../common/api.services"
 import { productPerPage } from "../../common/contanst";
 const state = {
     ID: 0,
-    image: "//cdn.shopify.com/s/files/1/1089/1214/collections/hurricane_large.jpg?v=1592876146",
     CollectionName: "",
-    PageID: null,
     Categories: [],
     productsToShow: [],
     currentPage: 1,
     status: {},
-    maxProductNumber:0
+    maxProductNumber: 0,
+    empty: null,
 }
 
 const getters = {
@@ -23,17 +22,15 @@ const getters = {
             return `${key}${state.status[key]}`;
         });
     },
-    empty: (state) => {
-        if (state.productsToShow.length == 0) {
-            return true;
-        } else {
-            return false;
-        }
+   
+    numberOfPage: (state) => {
+        return Math.ceil(state.maxProductNumber / productPerPage)
     }
 };
 
 const actions = {
-    async [FETCH_SINGLE_COLLECTION]({ commit }, collectionID) {
+    async [FETCH_SINGLE_COLLECTION]({ commit, state }, collectionID) {
+        state.empty = false;
         try {
             const response = await ApiServices.query(`/collections/${collectionID}/categories`);
             commit(SET_COLLECTION_CATEGORIES, response.data);
@@ -44,6 +41,7 @@ const actions = {
         }
     },
     async [FETCH_ALL_COLLECTION_PRODUCTS]({ commit, state }, payload) {
+        state.empty = false;
         try {
             console.log("fetching all products for collection", payload);
             const response = await ApiServices.query(`/collections/${payload.id}/products?limit=${productPerPage}&offset=${payload.offset}`);
@@ -51,10 +49,13 @@ const actions = {
 
             let maxProductNumber = 0;
             state.Categories.forEach((c) => {
-                maxProductNumber += c.ProductNumber;
+                maxProductNumber += parseFloat(c.ProductNumber);
             })
             commit(SET_PRODUCTS_TO_SHOW, response.data);
-            commit(SET_MAXIMUM_PRODUCT_NUMBER,maxProductNumber);
+            if (state.productsToShow.length == 0) {
+                state.empty = true;
+            }
+            commit(SET_MAXIMUM_PRODUCT_NUMBER, maxProductNumber);
         }
         catch (err) {
             console.log(err);
@@ -63,13 +64,17 @@ const actions = {
     },
 
 
-    async  [FETCH_SINGLE_CATEGORY]({ commit,state }, payload) {
+    async  [FETCH_SINGLE_CATEGORY]({ commit, state }, payload) {
+        state.empty = false;
         try {
             console.log("fetching all products for category", payload);
             const response = await ApiServices.query(`/categories/${payload.id}/products?limit=${productPerPage}&offset=${payload.offset} `)
-            commit(SET_PRODUCTS_TO_SHOW, response.data);
-            const maxProductNumber=state.Categories.filter((c)=>c.ID==payload.id)[0].ProductNumber;
-            commit(SET_MAXIMUM_PRODUCT_NUMBER,maxProductNumber);
+            commit(SET_PRODUCTS_TO_SHOW, response.data[1]);
+            if (state.productsToShow.length == 0) {
+                state.empty = true;
+            }
+            const maxProductNumber = state.Categories.filter((c) => c.ID == payload.id)[0].ProductNumber;
+            commit(SET_MAXIMUM_PRODUCT_NUMBER, maxProductNumber);
 
         }
         catch (err) {
@@ -81,12 +86,8 @@ const actions = {
 
 const mutations = {
 
-    [SET_COLLECTION_CATEGORIES](state, collection) {
-        for (const key in collection) {
-            if (Object.hasOwnProperty.call(state, key)) {
-                state[key] = collection[key];
-            }
-        }
+    [SET_COLLECTION_CATEGORIES](state, categories) {
+        state.Categories = categories;
     }
     ,
 

@@ -26,7 +26,7 @@
         :image="product.Images[0].Image"
       />
     </div>
-    <page-button-comp :amount="4" />
+    <page-button-comp :amount="numpberOfPage" />
   </section>
 </template>
 
@@ -56,6 +56,9 @@ export default {
         currentCategory.value = categoryID;
       }
     };
+    const numpberOfPage=computed(()=>
+    store.getters[`collectionModule/numberOfPage`]
+    )
     const onChangeCategory = (e) => {
       const collectionID = route.params.collectionID;
       const categoryID = e.target.value;
@@ -82,7 +85,7 @@ export default {
       productsToShow,
       optionList,
       currentCategory,
-      onChangeCategory,
+      onChangeCategory,numpberOfPage,
       //debug
     };
   },

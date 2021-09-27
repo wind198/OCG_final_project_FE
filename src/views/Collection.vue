@@ -20,6 +20,7 @@ import {
   FETCH_SINGLE_CATEGORY,
   FETCH_ALL_COLLECTION_PRODUCTS,
 } from "../store/actions.type";
+import {generatePageAlias} from "../common/helper";
 // import { CLEAR_PRODUCTS } from "../store/mutations.type";
 export default {
   components: {
@@ -30,12 +31,13 @@ export default {
 
     const route = useRoute();
     const { params, query } = toRefs(route);
-    const empty = computed(() => 
-      store.getters[`collectionModule/empty`]
-    );
-    const collectionName = computed(
-      () => store.state.collectionModule.CollectionName
-    );
+    const empty = computed(() => store.state.collectionModule.empty);
+    const collectionName = computed(() => {
+      console.log(route.params.collectionID);
+      const collections = store.getters[`homeModule/allCollection`];
+      const name =collections.filter((c) => c.ID == route.params.collectionID)[0].CollectionName;
+      return generatePageAlias(name);
+    });
     const fetchCollection = (id) => {
       return store.dispatch(
         `collectionModule/${FETCH_SINGLE_COLLECTION}`,

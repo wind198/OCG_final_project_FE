@@ -11,7 +11,7 @@ const state = {
     fieldHeight: 320,
     barWidth: 20,
     padding: 60,
-    maxBarShownOnnChart: 20,
+    maxBarShownOnChart: 10,
     //start & end time
 
     //data from api
@@ -28,11 +28,11 @@ const state = {
 const getters = {
     bestSellsWithColor: (state) => {
         const bestSells = state.bestSells;
-        const maxBarShownOnnChart = state.maxBarShownOnnChart;
+        const maxBarShownOnChart = state.maxBarShownOnChart;
 
         if (bestSells.length > 0) {
             const bestSellsWithRandomColor = [];
-            bestSells.slice(0, maxBarShownOnnChart).forEach((e) => {
+            bestSells.slice(0, maxBarShownOnChart).forEach((e) => {
                 bestSellsWithRandomColor.push({
                     ...e,
                     color: randomColorCodeGenerator(200, 20),
@@ -45,11 +45,11 @@ const getters = {
         const bestSells = state.bestSells;
         const fieldWidth = state.fieldWidth;
         const padding = state.padding;
-        const maxBarShownOnnChart = state.maxBarShownOnnChart;
+        const maxBarShownOnChart = state.maxBarShownOnChart;
         if (bestSells.length > 0) {
             const numberOfBar = bestSells.slice(
                 0,
-                maxBarShownOnnChart
+                maxBarShownOnChart
             ).length;
             return calculateXdistanceBetweenBar(fieldWidth, padding, numberOfBar);
         } else {
@@ -85,7 +85,7 @@ const mutations = {
         state.status = data;
     },
     [SET_MAX_BAR_NUMBER](state, num) {
-        state.maxBarShownOnnChart = num;
+        state.maxBarShownOnChart = num;
     },
 
 

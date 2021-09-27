@@ -1,6 +1,13 @@
 <template>
   <main class="analysis">
     <h1 class="formal-text">Sale analysis</h1>
+    <div class="toolbar">
+      <div class="button-container">
+        <button class="order-management">
+          <i class="fas fa-clipboard-list"></i>
+        </button>
+      </div>
+    </div>
     <div class="date-time">
       <div class="start">
         <label for="start" class="title formal-text">Start time: </label>
@@ -37,9 +44,9 @@
         name="limit"
         id="limit"
         min="1"
-        max="20"
+        max="10"
         @change="alterMaxBar"
-        :value="maxBarShownOnnChart"
+        :value="maxBarShownOnChart"
       />
     </div>
     <div class="chart-container">
@@ -63,7 +70,7 @@
         <span class="detail">{{ value }} </span>
       </p>
     </div>
-    <router-view/>
+    <router-view />
   </main>
 </template>
 
@@ -79,12 +86,12 @@ import {
 } from "../store/mutations.type";
 // import { GET_REPORT_DATA } from "../store/actions.type";
 import * as d3 from "d3";
-import {camelCaseToSpace,convertToISOformat} from "../common/helper";
+import { camelCaseToSpace, convertToISOformat } from "../common/helper";
 export default {
   setup() {
     const store = useStore();
-    const maxBarShownOnnChart = computed(
-      () => store.state.analysisModule.maxBarShownOnnChart
+    const maxBarShownOnChart = computed(
+      () => store.state.analysisModule.maxBarShownOnChart
     );
     const fieldWidth = computed(() => store.state.analysisModule.fieldWidth);
     const fieldHeight = computed(() => store.state.analysisModule.fieldHeight);
@@ -106,8 +113,8 @@ export default {
     const distanceBetweenBar = computed(
       () => store.getters[`analysisModule/distanceBetweenBar`]
     );
-    
-    const showChartElement = ref(false);
+
+    const showChartElement = ref(true);
     const startTime = ref("");
     const endTime = ref("");
     const startTimeInDesiredFormat = ref("");
@@ -131,9 +138,70 @@ export default {
     );
 
     // const convertToLocaleString = (time)=>time.toLocaleString('en-US', { timeZone: 'America/New_York' });
-    const alterMaxBar = (e) =>
+    const alterMaxBar = (e) => {
+      console.log("setting mx bar", e.target.value);
       store.commit(`analysisModule/${SET_MAX_BAR_NUMBER}`, e.target.value);
-
+    };
+    const drawChart = () => {
+      const data = bestSellsWithRandomColor.value;
+      const dis = distanceBetweenBar.value;
+      const w = fieldWidth.value;
+      const h = fieldHeight.value;
+      const p = padding.value;
+      const barW = barWidth.value;
+      console.log(data, dis, w, h, p, barW);
+      if (data.length > 0) {
+        console.log("hello");
+        d3.selectAll("svg").remove();
+        // const bestSells = r.bestSellsData.slice(0, maxBarShownOnnChart.value);
+        const yScale = d3
+          .scaleLinear()
+          .domain([0, d3.max(data, (d) => d.AmountSold)])
+          .range([h - p, p]);
+        const yAxis = d3.axisLeft(yScale);
+        const plotField = d3
+          .select(".best-selling")
+          .append("svg")
+          .attr("width", w)
+          .attr("height", h)
+          .attr("class", "plot-field");
+        plotField
+          .selectAll("rect")
+          .data(data)
+          .enter()
+          .append("rect")
+          .attr("class", "bar")
+          .style("fill", (d) => d.color)
+          .attr("height", (d) => h - p - yScale(d.AmountSold))
+          .attr("width", barW)
+          .attr("x", (d, i) => p - barW / 2 + (i + 0.5) * dis)
+          .attr("y", (d) => yScale(d.AmountSold))
+          .append("title")
+          .text((d) => d.Name);
+        plotField
+          .selectAll("text")
+          .data(data)
+          .enter()
+          .append("text")
+          .text((d) => d.AmountSold)
+          .attr("class", "title-text")
+          .attr("x", (d, i) => p - barW / 2 + (i + 0.5) * dis)
+          .attr("y", (d) => yScale(d.AmountSold) - 2);
+        plotField
+          .append("g")
+          .attr("transform", `translate(${p},0)`)
+          .attr("class", "axis")
+          .call(yAxis);
+        plotField
+          .append("line")
+          .attr("x1", p)
+          .attr("x2", w - p)
+          .attr("y1", h - p)
+          .attr("y2", h - p)
+          .attr("stroke", "#02195f");
+        showChartElement.value = true;
+      }
+    };
     const getReport = () => {
       showChartElement.value = false;
       showResultMessage.value = false;
@@ -167,64 +235,7 @@ export default {
           end: endTimeInDesiredFormat.value,
         })
         .then(() => {
-          const data = bestSellsWithRandomColor.value;
-          const dis = distanceBetweenBar.value;
-          const w = fieldWidth.value;
-          const h = fieldHeight.value;
-          const p = padding.value;
-          const barW = barWidth.value;
-          console.log(data, dis, w, h, p, barW);
-          if (data.length > 0) {
-            console.log("hello");
-            d3.selectAll("svg").remove();
-            // const bestSells = r.bestSellsData.slice(0, maxBarShownOnnChart.value);
-            const yScale = d3
-              .scaleLinear()
-              .domain([0, d3.max(data, (d) => d.AmountSold)])
-              .range([h - p, p]);
-            const yAxis = d3.axisLeft(yScale);
-            const plotField = d3
-              .select(".best-selling")
-              .append("svg")
-              .attr("width", w)
-              .attr("height", h)
-              .attr("class", "plot-field");
-            plotField
-              .selectAll("rect")
-              .data(data)
-              .enter()
-              .append("rect")
-              .attr("class", "bar")
-              .style("fill", (d) => d.color)
-              .attr("height", (d) => h - p - yScale(d.AmountSold))
-              .attr("width", barW)
-              .attr("x", (d, i) => p - barW / 2 + (i + 0.5) * dis)
-              .attr("y", (d) => yScale(d.AmountSold))
-              .append("title")
-              .text((d) => d.Name);
-            plotField
-              .selectAll("text")
-              .data(data)
-              .enter()
-              .append("text")
-              .text((d) => d.AmountSold)
-              .attr("class", "title-text")
-              .attr("x", (d, i) => p - barW / 2 + (i + 0.5) * dis)
-              .attr("y", (d) => yScale(d.AmountSold) - 2);
-            plotField
-              .append("g")
-              .attr("transform", `translate(${p},0)`)
-              .attr("class", "axis")
-              .call(yAxis);
-            plotField
-              .append("line")
-              .attr("x1", p)
-              .attr("x2", w - p)
-              .attr("y1", h - p)
-              .attr("y2", h - p)
-              .attr("stroke", "#02195f");
-            showChartElement.value = true;
-          }
+          drawChart();
         });
     };
     watch(startTime, (value) => {
@@ -233,7 +244,9 @@ export default {
     watch(endTime, (value) => {
       endTimeInDesiredFormat.value = convertToISOformat(value);
     });
-    watch(maxBarShownOnnChart, () => (showChartElement.value = false));
+    watch(maxBarShownOnChart, () => {
+      getReport();
+    });
 
     onMounted(() => {
       const currentDateTime = new Date();
@@ -254,7 +267,7 @@ export default {
       resultMessage,
       showResultMessage,
       showChartElement,
-      maxBarShownOnnChart,
+      maxBarShownOnChart,
       orderData,
       bestSellsWithRandomColor,
       fieldWidth,
@@ -273,7 +286,118 @@ export default {
 <style lang="scss" scoped>
 main {
   margin-bottom: 60px;
-  padding: 1vh 2vw;
+  padding: 1vh 4vw;
+  .toolbar {
+    height: 50vh;
+    width: fit-content;
+    position: fixed;
+    left: 0%;
+    top: 50%;
+    transform: translateY(-50%);
+    padding: 1rem 0.6rem;
+    /* Permalink - use to edit and share this gradient: https://colorzilla.com/gradient-editor/#4c4c4c+0,595959+12,666666+25,474747+39,2c2c2c+50,000000+51,111111+60,2b2b2b+76,1c1c1c+91,131313+100;Black+Gloss+%231 */
+    background: #4c4c4c; /* Old browsers */
+    background: -moz-linear-gradient(
+      top,
+      #4c4c4c 0%,
+      #595959 12%,
+      #666666 25%,
+      #474747 39%,
+      #2c2c2c 50%,
+      #000000 51%,
+      #111111 60%,
+      #2b2b2b 76%,
+      #1c1c1c 91%,
+      #131313 100%
+    ); /* FF3.6-15 */
+    background: -webkit-linear-gradient(
+      top,
+      #4c4c4c 0%,
+      #595959 12%,
+      #666666 25%,
+      #474747 39%,
+      #2c2c2c 50%,
+      #000000 51%,
+      #111111 60%,
+      #2b2b2b 76%,
+      #1c1c1c 91%,
+      #131313 100%
+    ); /* Chrome10-25,Safari5.1-6 */
+    background: linear-gradient(
+      to bottom,
+      #4c4c4c 0%,
+      #595959 12%,
+      #666666 25%,
+      #474747 39%,
+      #2c2c2c 50%,
+      #000000 51%,
+      #111111 60%,
+      #2b2b2b 76%,
+      #1c1c1c 91%,
+      #131313 100%
+    ); /* W3C, IE10+, FF16+, Chrome26+, Opera12+, Safari7+ */
+    filter: progid:DXImageTransform.Microsoft.gradient( startColorstr='#4c4c4c', endColorstr='#131313',GradientType=0 ); /* IE6-9 */
+
+    border-radius: 10px;
+    margin-left: 5px;
+    .button-container {
+      --button-size: 30px;
+      height: var(--button-size);
+      width: var(--button-size);
+      border: 1px solid darkgrey;
+      border-radius: 8px;
+      button {
+        /* Permalink - use to edit and share this gradient: https://colorzilla.com/gradient-editor/#4c4c4c+0,595959+12,666666+25,474747+39,2c2c2c+50,000000+51,111111+60,2b2b2b+76,1c1c1c+91,131313+100;Black+Gloss+%231 */
+        background: #4c4c4c; /* Old browsers */
+        background: -moz-linear-gradient(
+          top,
+          #4c4c4c 0%,
+          #595959 12%,
+          #666666 25%,
+          #474747 39%,
+          #2c2c2c 50%,
+          #000000 51%,
+          #111111 60%,
+          #2b2b2b 76%,
+          #1c1c1c 91%,
+          #131313 100%
+        ); /* FF3.6-15 */
+        background: -webkit-linear-gradient(
+          top,
+          #4c4c4c 0%,
+          #595959 12%,
+          #666666 25%,
+          #474747 39%,
+          #2c2c2c 50%,
+          #000000 51%,
+          #111111 60%,
+          #2b2b2b 76%,
+          #1c1c1c 91%,
+          #131313 100%
+        ); /* Chrome10-25,Safari5.1-6 */
+        background: linear-gradient(
+          to bottom,
+          #4c4c4c 0%,
+          #595959 12%,
+          #666666 25%,
+          #474747 39%,
+          #2c2c2c 50%,
+          #000000 51%,
+          #111111 60%,
+          #2b2b2b 76%,
+          #1c1c1c 91%,
+          #131313 100%
+        ); /* W3C, IE10+, FF16+, Chrome26+, Opera12+, Safari7+ */
+        filter: progid:DXImageTransform.Microsoft.gradient( startColorstr='#4c4c4c', endColorstr='#131313',GradientType=0 ); /* IE6-9 */
+
+        border: none;
+        display: block;
+        width: 100%;
+        height: 100%;
+        color: white;
+      }
+    }
+  }
   h1 {
     font-size: 1.5rem;
     text-transform: uppercase;

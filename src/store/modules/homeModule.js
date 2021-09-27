@@ -20,7 +20,7 @@ const defaultSearchResult = {
 const state = {
     pages: [],
     mainPageID: "",
-    collections: [],
+    // collections: [],
     status: {},
     showAnimation: false,
     loading: false,
@@ -40,6 +40,14 @@ const getters = {
         });
     },
 
+    allCollection:(state)=>{
+       let collections=[];
+       state.pages.forEach((p)=>{
+           collections=[...collections,...p.Collections];
+       })
+       return collections;
+    },
+
     mainPage: (state) => {
         const pages = state.pages;
         const mainPageIndex =  state .mainPageID;
@@ -52,8 +60,6 @@ const getters = {
     mainPageName:(state,getters)=>{
         return getters.mainPage.PageName;
     }
-
-
 };
 
 const actions = {

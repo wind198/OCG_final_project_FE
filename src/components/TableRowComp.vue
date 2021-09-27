@@ -25,7 +25,7 @@ export default {
       delete ouput1.Address;
       for (const key in ouput1) {
         if (key == `CreatedAt` || key == `UpdatedAt` || key == "FulfilledAt") {
-          if (ouput1[key] == "No info") {
+          if (ouput1[key] == "0001-01-01T00:00:00Z") {
             ouput1[key] = "No info";
           } else {
             ouput1[key] = new Date(ouput1[key]).toLocaleString();
