@@ -15,8 +15,8 @@
         <div class="cart-items">
           <cart-item-comp
             v-for="item in cartItems"
-            :id="item.variance_id"
-            :key="item.variance_id"
+            :id="item.productVarianceID"
+            :key="item.productVarianceID"
             :name="item.name"
             :image="item.image"
             :price="item.price"

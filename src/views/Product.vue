@@ -13,8 +13,8 @@
             <span>Color</span>
             <div class="option">
               <variance-check-box-comp
-                v-for="color in colorList"
-                :key="color.index"
+                v-for="(color,index) in colorList"
+                :key="index"
                 :value="color"
                 :class="[
                   color == colorPicked ? 'active' : '',
@@ -28,8 +28,8 @@
             <span>Size</span>
             <div class="option">
               <variance-check-box-comp
-                v-for="size in sizeList"
-                :key="size.index"
+                v-for="(size,index) in sizeList"
+                :key="index"
                 :value="size"
                 :class="[
                   size == sizePicked ? 'active' : '',
@@ -115,7 +115,7 @@ export default {
     };
 
     const getList = (attr) => {
-      const variances = store.state.productModule.ProductVariances;
+      const variances = store.state.productModule.productVariances;
       const output = [];
       variances.forEach((element) => {
         if (element[attr] !== "" && output.indexOf(element[attr]) < 0) {
@@ -129,7 +129,7 @@ export default {
     const name = computed(() => store.state.productModule.name);
     const image = computed(() => store.state.productModule.image);
     const variances = computed(
-      () => store.state.productModule.ProductVariances
+      () => store.state.productModule.productVariances
     );
 
     const category = computed(() => {
@@ -143,16 +143,16 @@ export default {
       () => store.state.productModule.addToCartSuccess
     );
     const colorList = computed(() => {
-      return getList("color");
+      return getList("Color");
     });
     const sizeList = computed(() => {
-      return getList("size");
+      return getList("Size");
     });
     const matchByColor = computed(() => {
       const output = {};
       for (let i = 0; i < variances.value.length; i++) {
-        const color = variances.value[i].color;
-        const size = variances.value[i].size;
+        const color = variances.value[i].Color;
+        const size = variances.value[i].Size;
         if (size !== "") {
           if (!Object.hasOwnProperty.call(output, color)) {
             output[color] = [size];
@@ -166,8 +166,8 @@ export default {
     const matchBySize = computed(() => {
       const output = {};
       for (let i = 0; i < variances.value.length; i++) {
-        const color = variances.value[i].color;
-        const size = variances.value[i].size;
+        const color = variances.value[i].Color;
+        const size = variances.value[i].Size;
         if (size !== "") {
           if (!Object.hasOwnProperty.call(output, size)) {
             output[size] = [color];
@@ -189,9 +189,9 @@ export default {
     });
     const quantity = computed(() => store.state.productModule.quantitySelected);
     const priceToShow = computed(() => {
-      if (typeof pickedVariance.value.price == "undefined") {
+      if (typeof pickedVariance.value.Price == "undefined") {
         return priceRange.value.join(" - ");
-      } else return pickedVariance.value.price;
+      } else return pickedVariance.value.Price;
     });
     const colorPicked = ref("");
     const sizePicked = ref("");
@@ -246,14 +246,14 @@ export default {
         return;
       }
       const sendingItem = {
-        variance_id: pickedVariance.value.ID,
+        productVarianceID: pickedVariance.value.ID,
         name: name.value,
         image: image.value,
-        price: pickedVariance.value.price,
+        price: pickedVariance.value.Price,
         quantity: quantity.value,
       };
       for (const key in sendingItem) {
-        if (key!=='variance_id' & typeof sendingItem[key] == "undefined") {
+        if (key!=='productVarianceID' & typeof sendingItem[key] == "undefined") {
           store.commit(`productModule/${SET_ERRORS}`, {
             data: ["Unexpected error occured. Please come back later."],
           });
@@ -269,10 +269,10 @@ export default {
         store.commit(`productModule/${SET_ADD_TO_CART_FAIL}`);
         return;
       }
-      if (quantity.value > pickedVariance.value.inventory) {
+      if (quantity.value > pickedVariance.value.Inventory) {
         store.commit(`productModule/${SET_ERRORS}`, {
           data: [
-            `Sorry. your selected quantity exceeded our inventory (${pickedVariance.value.inventory})`,
+            `Sorry. your selected quantity exceeded our inventory (${pickedVariance.value.Inventory})`,
           ],
         });
         store.commit(`productModule/${SET_ADD_TO_CART_FAIL}`);
@@ -286,10 +286,10 @@ export default {
     watch([colorPicked, sizePicked], (newValue) => {
       pickedVariance.value = {};
       for (let i = 0; i < variances.value.length; i++) {
-        if (variances.value[i].color !== "" && variances.value[i].size !== "") {
+        if (variances.value[i].Color !== "" && variances.value[i].Size !== "") {
           if (
-            variances.value[i].color == newValue[0] &&
-            variances.value[i].size == newValue[1]
+            variances.value[i].Color == newValue[0] &&
+            variances.value[i].Size == newValue[1]
           ) {
             pickedVariance.value = variances.value[i];
             break;
@@ -307,9 +307,9 @@ export default {
 
     onMounted(() => {
       fetchProductInfo().then(() => {
-        allowedColor.value = getList("color");
-        allowedSize.value = getList("size");
-        const variances = store.state.productModule.ProductVariances;
+        allowedColor.value = getList("Color");
+        allowedSize.value = getList("Size");
+        const variances = store.state.productModule.productVariances;
         const minPrice = getMinPrice(variances);
         const maxPrice = getMaxPrice(variances);
         if (maxPrice > minPrice) {

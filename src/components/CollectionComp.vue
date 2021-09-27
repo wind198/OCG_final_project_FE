@@ -1,13 +1,13 @@
 <template>
   <div class="collection">
     <img
-      :src="collection.image"
+      :src="collection.Image"
       alt=""
     />
     <span class="collection-name"
       ><router-link
         :to="{path:`/collection/${collection.ID}`}"
-        >{{ generatePageAlias(collection.collection_name) }}</router-link
+        >{{ generatePageAlias(collection.CollectionName) }}</router-link
       ></span
     >
   </div>

@@ -1,5 +1,6 @@
 export const FETCH_SINGLE_PRODUCT="fetchSingleProduct";
 export const FETCH_SINGLE_COLLECTION="fetchSingleCollection";
+export const FETCH_ALL_COLLECTION_PRODUCTS="fetchAllCollectionProducts";
 export const FETCH_SINGLE_CATEGORY="fetchSingleCategory";
 export const FETCH_SINGLE_PAGE="fetchSinglePage";
 export const FETCH_ALL_PAGE="fetchAllPage";
@@ -8,3 +9,4 @@ export const SET_ORDER_FULFILLED="setOrderFulfilled";
 export const GET_REPORT_DATA="getReportData";
 export const LOGIN="login";
 export const LOGOUT="logout";
+export const GET_ORDER_MANAGEMENT_DATA="getOrderManagementData";

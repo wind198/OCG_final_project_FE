@@ -4,10 +4,10 @@
       <button
         v-for="page in numberOfPage"
         :key="page.id"
-        :value="page.id + `page`"
+        :value="page.id"
         class="page-button"
         @click="setPage"
-        :class="currentPage==page.id?'active':''"
+        :class="currentPage == page.id ? 'active' : ''"
       >
         {{ page.value }}
       </button>
@@ -16,10 +16,11 @@
 </template>
 
 <script>
-import { computed, onMounted, toRefs, ref, onUpdated, watch } from "vue";
-import { SET_CURRENT_PAGE } from "../store/mutations.type";
+import { computed, onMounted, toRefs, ref, watch } from "vue";
 import { useStore } from "vuex";
-import { useRoute } from "vue-router";
+import { useRoute, useRouter } from "vue-router";
+import { productPerPage } from "../common/contanst";
+import { SET_CURRENT_PAGE } from '../store/mutations.type';
 export default {
   props: {
     amount: Number,
@@ -29,7 +30,13 @@ export default {
     const { amount } = toRefs(props);
     const showButtons = ref(false);
     const route = useRoute();
-    watch(route, () => (showButtons.value = false));
+    const router = useRouter();
+    watch(route, () => {
+      showButtons.value = false;
+      setTimeout(() => {
+        showButtons.value = true;
+      }, 1000);
+    });
     const numberOfPage = computed(() => {
       const arr = [];
       for (let i = 1; i <= amount.value; i++) {
@@ -41,17 +48,15 @@ export default {
       () => store.state.collectionModule.currentPage
     );
     const setPage = (e) => {
-      store.commit(
-        `collectionModule/${SET_CURRENT_PAGE}`,
-        parseInt(e.target.value)
-      );
+      const pageNum = e.target.value;
+      console.log(pageNum);
+      router.push({
+        path: "",
+        query: { offset: (pageNum - 1) * productPerPage },
+      });
+      store.commit(`collectionModule/${SET_CURRENT_PAGE}`,pageNum);
     };
     onMounted(() => {
-      setTimeout(() => {
-        showButtons.value = true;
-      }, 1000);
-    });
-    onUpdated(() => {
       setTimeout(() => {
         showButtons.value = true;
       }, 1000);
@@ -122,10 +127,9 @@ export default {
       margin-left: 0.2rem;
     }
   }
-  .page-button.active{
+  .page-button.active {
     filter: brightness(1.5);
     transform: scale(1.2);
-
   }
 }
 </style>

@@ -5,11 +5,7 @@ import {
 } from "../mutations.type"
 import ApiServices from "../../common/api.services";
 const state = {
-    // variance_id: pickedVariance.value.ID,
-    // name: name.value,
-    // image: image.value,
-    // price: pickedVariance.value.price,
-    // quantity: quantity.value,
+    
     cartItems: [],
     total: null,
 
@@ -81,7 +77,7 @@ const mutations = {
         let resolved = false;
         if (items.length > 0) {
             for (let i = 0; i < items.length; i++) {
-                if (items[i].variance_id == item.variance_id) {
+                if (items[i].productVarianceID == item.productVarianceID) {
                     items[i].quantity += item.quantity;
                     console.log("break");
                     resolved = true;
@@ -101,8 +97,8 @@ const mutations = {
         console.log("commit remove", itemToRemoveID);
         console.log(state.cartItems);
         state.cartItems = state.cartItems.filter((i) => {
-            console.log(i.variance_id, itemToRemoveID, i.variance_id == itemToRemoveID);
-            if (i.variance_id == itemToRemoveID) {
+            console.log(i.productVarianceID, itemToRemoveID, i.productVarianceID == itemToRemoveID);
+            if (i.productVarianceID == itemToRemoveID) {
                 console.log("found!");
                 state.total -= i.price * i.quantity;
                 return false;
@@ -113,7 +109,7 @@ const mutations = {
 
     // [SET_ITEM](state, payload) {
     //     state.cartItems = state.cartItems.map((i) => {
-    //         if (i.varianceID == payload.varianceID) {
+    //         if (i.productVarianceID == payload.productVarianceID) {
     //             return { ...i, ...payload }
     //         } else {
     //             return i;

@@ -46,8 +46,8 @@ export const generatePageAlias = (name) => {
 export const getMaxPrice = (variances) => {
   let maxPrice = 0;
   variances.forEach((e) => {
-    if (parseFloat(e.price) > maxPrice) {
-      maxPrice = parseFloat(e.price);
+    if (parseFloat(e.Price) > maxPrice) {
+      maxPrice = parseFloat(e.Price);
     }
   });
   return maxPrice;
@@ -56,8 +56,8 @@ export const getMaxPrice = (variances) => {
 export const getMinPrice = (variances) => {
   let minPrice = 100000;
   variances.forEach((e) => {
-    if (parseFloat(e.price) < minPrice) {
-      minPrice = parseFloat(e.price);
+    if (parseFloat(e.Price) < minPrice) {
+      minPrice = parseFloat(e.Price);
     }
   });
   return minPrice;
@@ -74,11 +74,51 @@ export const calculateXdistanceBetweenBar = (fieldWidth, padding, numberOfBar) =
   return (fieldWidth - 2 * padding) / numberOfBar;
 }
 
-export const randomColorCodeGenerator = (max,min) => {
+export const randomColorCodeGenerator = (max, min) => {
   const colorCode = [];
   for (let i = 0; i < 3; i++) {
-   const index = Math.floor(Math.random() * (max-min)+min)
+    const index = Math.floor(Math.random() * (max - min) + min)
     colorCode.push(index);
   }
   return `rgb(${colorCode.join(", ")})`;
 }
+
+export const checkIfExistInObjectArray = (value, key, arr) => {
+  for (let index = 0; index < arr.length; index++) {
+    if (value == arr[index][key]) {
+      return true
+    }
+
+  }
+  return false
+
+}
+
+export const camelCaseToSpace = (text) => {
+  const lowerCaseVer = text.toLowerCase();
+  let output = "";
+  for (let index = 0; index < text.length; index++) {
+    if (text[index] === lowerCaseVer[index]) {
+      output += text[index];
+    }
+    else {
+      output += " " + lowerCaseVer[index];
+    }
+
+  }
+  return output
+}
+
+export const convertToISOformat = (timeValue) => {
+  const time = new Date(timeValue);
+  const offset = time.getTimezoneOffset();
+  const isoTime = new Date(time.getTime() - offset * 60 * 1000);
+  const desiredTime = isoTime
+    .toISOString()
+    .split(".")[0]
+    .split("T")
+    .join(" ");
+  console.log(desiredTime);
+  return desiredTime;
+};
+

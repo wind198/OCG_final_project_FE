@@ -49,20 +49,21 @@
         v-show="showChartElement"
       ></div>
       <div class="legend" v-show="showChartElement">
-        <div v-for="item in bestSellsWithRandomColor" :key="item.product_id">
+        <div v-for="item in bestSellsWithRandomColor" :key="item.productID">
           <span class="color" :style="{ backgroundColor: item.color }"> </span>
-          <span class="name">{{ item.product_name }} </span>
+          <span class="name">{{ item.Name }} </span>
         </div>
       </div>
     </div>
 
     <div class="report">
       <h2 class="formal-text">Order summary</h2>
-      <p v-for="(value, index) in saleData" :key="index">
+      <p v-for="(value, index) in orderData" :key="index">
         <span class="item">{{ index }}:</span>
         <span class="detail">{{ value }} </span>
       </p>
     </div>
+    <router-view/>
   </main>
 </template>
 
@@ -72,13 +73,13 @@ import { useStore } from "vuex";
 import { GET_REPORT_DATA } from "../store/actions.type";
 import {
   RESET_DATA,
-  SET_ERRORS,
+  SET_STATUS,
   SET_GET_REPORT_FAIL,
   SET_MAX_BAR_NUMBER,
 } from "../store/mutations.type";
 // import { GET_REPORT_DATA } from "../store/actions.type";
 import * as d3 from "d3";
-
+import {camelCaseToSpace,convertToISOformat} from "../common/helper";
 export default {
   setup() {
     const store = useStore();
@@ -90,11 +91,11 @@ export default {
     const barWidth = computed(() => store.state.analysisModule.barWidth);
     const padding = computed(() => store.state.analysisModule.padding);
 
-    const saleData = computed(() => {
-      const objectFromStore = store.state.analysisModule.saleData;
+    const orderData = computed(() => {
+      const objectFromStore = store.state.analysisModule.orderData;
       const outputObject = {};
       for (const key in objectFromStore) {
-        outputObject[key.split("_").join(" ")] = objectFromStore[key];
+        outputObject[camelCaseToSpace(key)] = objectFromStore[key];
       }
       return outputObject;
     });
@@ -105,18 +106,7 @@ export default {
     const distanceBetweenBar = computed(
       () => store.getters[`analysisModule/distanceBetweenBar`]
     );
-    const convertToISOformat = (timeValue) => {
-      const time = new Date(timeValue);
-      const offset = time.getTimezoneOffset();
-      const isoTime = new Date(time.getTime() - offset * 60 * 1000);
-      const desiredTime = isoTime
-        .toISOString()
-        .split(".")[0]
-        .split("T")
-        .join(" ");
-      console.log(desiredTime);
-      return desiredTime;
-    };
+    
     const showChartElement = ref(false);
     const startTime = ref("");
     const endTime = ref("");
@@ -153,7 +143,7 @@ export default {
         startTimeInDesiredFormat.value === "" ||
         endTimeInDesiredFormat.value === ""
       ) {
-        store.commit(`analysisModule/${SET_ERRORS}`, {
+        store.commit(`analysisModule/${SET_STATUS}`, {
           data: ["You must choose both start & end time"],
         });
         store.commit(`analysisModule/${SET_GET_REPORT_FAIL}`);
@@ -164,7 +154,7 @@ export default {
       if (
         new Date(startTime.value).getTime() >= new Date(endTime.value).getTime()
       ) {
-        store.commit(`analysisModule/${SET_ERRORS}`, {
+        store.commit(`analysisModule/${SET_STATUS}`, {
           data: ["Invalid time duration,"],
         });
         store.commit(`analysisModule/${SET_GET_REPORT_FAIL}`);
@@ -190,7 +180,7 @@ export default {
             // const bestSells = r.bestSellsData.slice(0, maxBarShownOnnChart.value);
             const yScale = d3
               .scaleLinear()
-              .domain([0, d3.max(data, (d) => d.amount_sold)])
+              .domain([0, d3.max(data, (d) => d.AmountSold)])
               .range([h - p, p]);
             const yAxis = d3.axisLeft(yScale);
             const plotField = d3
@@ -206,21 +196,21 @@ export default {
               .append("rect")
               .attr("class", "bar")
               .style("fill", (d) => d.color)
-              .attr("height", (d) => h - p - yScale(d.amount_sold))
+              .attr("height", (d) => h - p - yScale(d.AmountSold))
               .attr("width", barW)
               .attr("x", (d, i) => p - barW / 2 + (i + 0.5) * dis)
-              .attr("y", (d) => yScale(d.amount_sold))
+              .attr("y", (d) => yScale(d.AmountSold))
               .append("title")
-              .text((d) => d.product_name);
+              .text((d) => d.Name);
             plotField
               .selectAll("text")
               .data(data)
               .enter()
               .append("text")
-              .text((d) => d.amount_sold)
+              .text((d) => d.AmountSold)
               .attr("class", "title-text")
               .attr("x", (d, i) => p - barW / 2 + (i + 0.5) * dis)
-              .attr("y", (d) => yScale(d.amount_sold) - 2);
+              .attr("y", (d) => yScale(d.AmountSold) - 2);
             plotField
               .append("g")
               .attr("transform", `translate(${p},0)`)
@@ -265,7 +255,7 @@ export default {
       showResultMessage,
       showChartElement,
       maxBarShownOnnChart,
-      saleData,
+      orderData,
       bestSellsWithRandomColor,
       fieldWidth,
       padding,
@@ -292,7 +282,6 @@ main {
   }
   .chart-container {
     width: 750px;
-    height: 320px;
     margin: 0 auto 40px auto;
     background: $plotFieldColor;
     position: relative;
@@ -368,7 +357,7 @@ main {
     right: 5px;
     top: 5px;
     position: absolute;
-    max-height: 60%;
+    max-height: 40%;
     overflow: auto;
     padding: 0.5rem;
     border: 1px solid rgb(212, 212, 212);
@@ -389,6 +378,7 @@ main {
     }
   }
   .best-selling {
+    padding: 10% 0 0 0;
     position: relative;
     width: 100%; // background-color: blue;
     height: 100%;

@@ -28,7 +28,7 @@ export default {
       store.commit(`productModule/${SET_QUANTITY}`, quantity.value + 1);
     };
     const onDec = () => {
-      if (quantity.value < 1) {
+      if (quantity.value <= 1) {
         return;
       }
       store.commit(`productModule/${SET_QUANTITY}`, quantity.value - 1);

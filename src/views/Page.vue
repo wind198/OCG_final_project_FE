@@ -16,7 +16,7 @@ import CollectionComp from "../components/CollectionComp.vue";
 import HeadingComp from "../components/HeadingComp.vue";
 import { FETCH_SINGLE_PAGE } from "../store/actions.type";
 import { useStore } from "vuex";
-import { useRoute } from "vue-router";
+import { useRoute, useRouter } from "vue-router";
 import { computed } from "@vue/reactivity";
 import { onMounted, watch } from "@vue/runtime-core";
 export default {
@@ -24,27 +24,45 @@ export default {
   setup() {
     const store = useStore();
     let route = useRoute();
+    let router = useRouter();
     let id = computed(() => route.params.pageID);
 
     const fetchPage = (id) =>
-      store.dispatch(`homeModule/${FETCH_SINGLE_PAGE}`, { id:parseInt(id) });
+      store.dispatch(`homeModule/${FETCH_SINGLE_PAGE}`, { id: parseInt(id) });
 
     onMounted(fetchPage(id.value));
-    watch(id, (value) => {
-      fetchPage(value);
-    });
+    watch(
+      () => route.params.pageID,
+      (value) => {
+        // console.log("value",value);
+        if (value) {
+          console.log("pageId", value);
+          fetchPage(value);
+        }
+      }
+    );
 
-    const mainPage = computed(() => {
-      const pages = store.state.homeModule.pages;
-      const mainPageIndex = store.state.homeModule.mainPageID;
-      const mainPage = pages.filter((e) => e.ID == mainPageIndex)[0];
-      return mainPage;
-    });
     const collectionList = computed(() => {
-      return mainPage.value.Collections;
+      return store.getters[`homeModule/collectionList`];
     });
-    const pageName = computed(() => mainPage.value.page_name);
-    return { collectionList, pageName };
+    const pageName = computed(() => store.getters[`homeModule/mainPageName`]);
+    const status = computed(() => store.state.homeModule.status);
+    watch(
+      () => status.value.statusCode,
+      (code) => {
+        if (code == 404) {
+          router.push({ name: "notFound", params: { pathMatch: "not-found" } });
+        }
+      },
+      { immediate: true }
+    );
+    return {
+      collectionList,
+      pageName,
+
+      //debug
+      status,
+    };
   },
 };
 </script>

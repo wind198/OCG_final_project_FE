@@ -10,7 +10,7 @@
               <label class="formal-text" for="name">full name</label>
               <input
                 class="formal-text"
-                v-model="customer_name"
+                v-model="customerName"
                 type="text"
                 name="name"
                 id="name"
@@ -87,8 +87,8 @@
         </div>
         <bill-item-comp
           v-for="item in cartItems"
-          :key="item.variance_id"
-          :id="item.variance_id"
+          :key="item.productVarianceID"
+          :id="item.productVarianceID"
           :name="item.name"
           :price="item.price"
           :quantity="item.quantity"
@@ -131,7 +131,7 @@ export default {
   setup() {
     const route = useRoute();
     const router = useRouter();
-    const customer_name = ref("Le Hoang Tuan");
+    const customerName = ref("Le Hoang Tuan");
     const email = ref("tuanbk1908@gmail.com");
     const phone = ref("0968576908");
     const address = ref("150a4 Nguyen Canh Di, Hanoi");
@@ -167,7 +167,7 @@ export default {
       (value) => {
         showPaymentMessage.value = true;
         if (value) {
-          customer_name.value = "";
+          customerName.value = "";
           email.value = "";
           phone.value = "";
           address.value = "";
@@ -188,7 +188,7 @@ export default {
       const order = {
         email: email.value.trim(),
         phone: phone.value.trim(),
-        customer_name: customer_name.value.trim(),
+        customerName: customerName.value.trim(),
         address: address.value.trim(),
         OrderDetails: [],
       };
@@ -200,13 +200,13 @@ export default {
       cartItems.value.forEach((i) => {
         console.log(i);
         order.OrderDetails.push({
-          product_variance_id: parseInt(i.variance_id),
+          productVarianceID: parseInt(i.productVarianceID),
           quantity: parseInt(i.quantity),
         });
       });
 
       const errorIfExist = [];
-      if (!nameRegex.test(order.customer_name)) {
+      if (!nameRegex.test(order.customerName)) {
         errorIfExist.push("Invalid name");
       }
       if (!emailRegex.test(order.email)) {
@@ -249,7 +249,7 @@ export default {
           store.commit(`cartModule/${SET_PAYMENT_FAILED}`);
         }
         const { err, PaymentIntentSecretKey: paymentIntentSecretKey } =
-          await ApiServices.post("/payment", {
+          await ApiServices.post("/orders/payment", {
             orderID: orderID.value,
           }).then((r) => {
             console.log(r.data);
@@ -273,7 +273,7 @@ export default {
             payment_method: {
               card: card,
               billing_details: {
-                name: customer_name.value,
+                name: customerName.value,
               },
             },
           });
@@ -305,7 +305,7 @@ export default {
     return {
       cartItems,
       total,
-      customer_name,
+      customerName,
       email,
       phone,
       address,

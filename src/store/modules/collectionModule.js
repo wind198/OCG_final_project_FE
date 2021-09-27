@@ -1,51 +1,80 @@
-import { FETCH_SINGLE_CATEGORY, FETCH_SINGLE_COLLECTION } from "../actions.type";
-import { SET_CURRENT_PAGE,CLEAR_PRODUCTS, SET_ERRORS, SET_COLLECTION_CATEGORIES, SET_CATEGORY_PRODUCTS } from "../mutations.type"
+import { FETCH_SINGLE_CATEGORY, FETCH_SINGLE_COLLECTION, FETCH_ALL_COLLECTION_PRODUCTS } from "../actions.type";
+import { SET_PRODUCTS_TO_SHOW, SET_CURRENT_PAGE, CLEAR_PRODUCTS, SET_STATUS, SET_COLLECTION_CATEGORIES, SET_MAXIMUM_PRODUCT_NUMBER } from "../mutations.type"
 import ApiServices from "../../common/api.services"
 import { productPerPage } from "../../common/contanst";
 const state = {
-    ID: 2,
-    CreatedAt: "",
-    UpdatedAt: "",
-    DeletedAt: "",
+    ID: 0,
     image: "//cdn.shopify.com/s/files/1/1089/1214/collections/hurricane_large.jpg?v=1592876146",
-    collection_name: "",
-    page_id: null,
+    CollectionName: "",
+    PageID: null,
     Categories: [],
-    currentPage:1,
-    errors: {}
+    productsToShow: [],
+    currentPage: 1,
+    status: {},
+    maxProductNumber:0
 }
 
 const getters = {
-    errors: (state) => {
-        if (!state.errors) {
+    status: (state) => {
+        if (!state.status) {
             return []
         }
-        return Object.keys(state.errors).map((key) => {
-            return `${key}${state.errors[key]}`;
+        return Object.keys(state.status).map((key) => {
+            return `${key}${state.status[key]}`;
         });
     },
+    empty: (state) => {
+        if (state.productsToShow.length == 0) {
+            return true;
+        } else {
+            return false;
+        }
+    }
 };
 
 const actions = {
-    async [FETCH_SINGLE_COLLECTION]({ commit }, payload) {
+    async [FETCH_SINGLE_COLLECTION]({ commit }, collectionID) {
         try {
-            console.log("fetching cllection");
-            const data = await ApiServices.query(`/collections/${payload.id}/categories`);
-            commit(SET_COLLECTION_CATEGORIES, data.data);
+            const response = await ApiServices.query(`/collections/${collectionID}/categories`);
+            commit(SET_COLLECTION_CATEGORIES, response.data);
         }
         catch (err) {
             console.log(err);
-            commit(SET_ERRORS, err.response.data.errors);
+            commit(SET_STATUS, err.response.data.errors);
         }
     },
-    async  [FETCH_SINGLE_CATEGORY]({ commit }, payload) {
+    async [FETCH_ALL_COLLECTION_PRODUCTS]({ commit, state }, payload) {
         try {
-            const data = await ApiServices.query(`/products/${productPerPage}/0/categories/${payload.id}`)
-            commit(SET_CATEGORY_PRODUCTS, { categoryID: payload.id, products: data.data });
+            console.log("fetching all products for collection", payload);
+            const response = await ApiServices.query(`/collections/${payload.id}/products?limit=${productPerPage}&offset=${payload.offset}`);
+            console.log("allproducts", response);
+
+            let maxProductNumber = 0;
+            state.Categories.forEach((c) => {
+                maxProductNumber += c.ProductNumber;
+            })
+            commit(SET_PRODUCTS_TO_SHOW, response.data);
+            commit(SET_MAXIMUM_PRODUCT_NUMBER,maxProductNumber);
         }
         catch (err) {
             console.log(err);
-            commit(SET_ERRORS, err.response.data.errors);
+            commit(SET_STATUS, err.response.data.errors);
+        }
+    },
+
+
+    async  [FETCH_SINGLE_CATEGORY]({ commit,state }, payload) {
+        try {
+            console.log("fetching all products for category", payload);
+            const response = await ApiServices.query(`/categories/${payload.id}/products?limit=${productPerPage}&offset=${payload.offset} `)
+            commit(SET_PRODUCTS_TO_SHOW, response.data);
+            const maxProductNumber=state.Categories.filter((c)=>c.ID==payload.id)[0].ProductNumber;
+            commit(SET_MAXIMUM_PRODUCT_NUMBER,maxProductNumber);
+
+        }
+        catch (err) {
+            console.log(err);
+            commit(SET_STATUS, err.response.data.errors);
         }
     }
 }
@@ -60,14 +89,10 @@ const mutations = {
         }
     }
     ,
-    [SET_CATEGORY_PRODUCTS](state, payload) {
-        state.Categories = state.Categories.map((category) => {
-            if (category.ID == payload.categoryID) {
-                return { ...category, Products: payload.products }
 
-            } else return category
-        }
-        )
+    [SET_PRODUCTS_TO_SHOW](state, payload) {
+        state.productsToShow = payload;
+
     },
     [CLEAR_PRODUCTS](state) {
         state.Categories.forEach(category => {
@@ -75,13 +100,16 @@ const mutations = {
         });
     }
     ,
-    [SET_ERRORS](state, errors) {
-        state.errors = errors;
+    [SET_STATUS](state, data) {
+        state.status = data;
     }
     ,
     [SET_CURRENT_PAGE](state, value) {
         state.currentPage = value
-    }
+    },
+    [SET_MAXIMUM_PRODUCT_NUMBER](state, value) {
+        state.maxProductNumber = value
+    },
 }
 export default {
     state, getters, actions, mutations,

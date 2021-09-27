@@ -64,7 +64,7 @@
             :to="{ name: 'page', params: { pageID: page.ID } }"
             @mouseenter="mouseEnterShowSubList"
             @mouseleave="mouseLeaveHideSubList"
-            >{{ generatePageAlias(page.page_name) }}
+            >{{ generatePageAlias(page.PageName) }}
             <nav-sub-menu-comp :collectionList="page.Collections" />
           </router-link>
         </li>

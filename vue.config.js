@@ -13,7 +13,7 @@ module.exports = {
     }
   },
   devServer: {
-    proxy: "http://localhost:9922/api"
+    proxy: "http://localhost:9933/api"
 
 
   },

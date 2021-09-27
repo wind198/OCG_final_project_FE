@@ -10,23 +10,23 @@
           :value="option.ID"
           :selected="currentCategory == option.ID"
         >
-          {{ option.category_name.split("-").slice(1).join(" ") }}
+          {{ option.CategoryName.split("-").slice(1).join(" ") }}
         </option>
       </select>
     </div>
-   
+
     <div class="product-container">
       <product-comp
         v-for="product in productsToShow"
         :key="product.ID"
         :id="parseInt(product.ID)"
-        :name="product.name"
-        :description="product.description"
+        :name="product.Name"
+        :description="product.Description"
         :variances="product.ProductVariances"
-        :image="product.Images[0].image"
+        :image="product.Images[0].Image"
       />
     </div>
-    <page-button-comp :amount="numberOfPage" />
+    <page-button-comp :amount="4" />
   </section>
 </template>
 
@@ -45,56 +45,45 @@ export default {
     const store = useStore();
     const route = useRoute();
     const router = useRouter();
-    const categoryID = computed(() => route.params.categoryID);
-    const allCategory = computed(() => store.state.collectionModule.Categories);
-    const productPerPage=24;
-    const numberOfPage=computed(()=>Math.ceil(products.value.length/productPerPage));
-    const currentPage=computed(()=>store.state.collectionModule.currentPage);
-    const products = ref([]);
-    const productsToShow = computed(()=>{
-      return products.value.slice((currentPage.value-1)*productPerPage,currentPage.value*productPerPage-1)
-    })
-    const optionList = ref([]);
+    const productsToShow = computed(
+      () => store.state.collectionModule.productsToShow
+    );
+    const optionList = computed(() => store.state.collectionModule.Categories);
     const currentCategory = ref("");
-    const onChangeCategory = (e) => {
-      console.log("CHANGED", e.target.value);
-      const targetID = e.target.value;
-      if (route.params.categoryID != targetID) {
-        router.push(`/collection/${route.params.collectionID}/${targetID}`);
+    const init = () => {
+      const categoryID = route.params.categoryID;
+      if (typeof categoryID !== "undefined") {
+        currentCategory.value = categoryID;
       }
     };
-    watch(route, (route) => {
-      if (typeof route.params.categoryID == "undefined") {
-        currentCategory.value = "";
-      } else {
-        currentCategory.value = route.params.categoryID;
+    const onChangeCategory = (e) => {
+      const collectionID = route.params.collectionID;
+      const categoryID = e.target.value;
+      if (categoryID !== "") {
+        router.push({ path: `/collection/${collectionID}/${categoryID}` });
+      }else{
+        router.push({ path: `/collection/${collectionID}` });
+
       }
-    },{immediate:true});
+    };
+
     watch(
-      allCategory,
-      (allCategory) => {
-        const allProduct = [];
-        if (allCategory.length > 0) {
-          allCategory.forEach((element) => {
-            if (element.Products !== null) {
-              allProduct.push(...element.Products);
-            }
-          });
-          optionList.value = [...allCategory];
+      () => route.params.categoryID,
+      (value) => {
+        if (typeof value === "undefined") {
+          currentCategory.value = "";
+        } else {
+          currentCategory.value = value;
         }
-        products.value = allProduct;
-      },
-      { deep: true }
+      }
     );
+    init();
     return {
-      productsToShow,numberOfPage,
+      productsToShow,
       optionList,
-      categoryID,
-      allCategory,
       currentCategory,
       onChangeCategory,
       //debug
-      products,currentPage,
     };
   },
 };
